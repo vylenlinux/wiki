@@ -1,0 +1,129 @@
+<section class="hero compact">
+    <p class="eyebrow">01 / SYSTEM INSTALLATION</p>
+    <h1>Install Vylen Linux</h1>
+
+    <p class="lead">
+        A minimal UEFI installation with a FAT32 EFI System Partition and an
+        ext4 root filesystem.
+    </p>
+
+    <div class="callout warning">
+        <strong>Warning.</strong> Replace <code>/dev/nvme0n1</code> with the
+        actual target disk. Partitioning and formatting erase data on the
+        selected device. <code>&lt;UUID&gt;</code> is a placeholder that must be
+        replaced with the value printed by <code>blkid</code>.
+    </div>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">Installation</p>
+        <a href="#/install#partition">Partition and mount</a>
+        <a href="#/install#rootfs">Install rootfs</a>
+        <a href="#/install#base">Configure the base</a>
+        <a href="#/install#boot">Kernel and EFI</a>
+        <a href="#/install#finish">Finish</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="partition">Step 1: Partition, format, and mount</h2>
+
+        <p>
+            Create two partitions with <code>cfdisk</code>: an EFI System
+            Partition as the first partition and an <code>ext4</code> root
+            partition as the second. The EFI partition is mounted at
+            <code>/boot</code>.
+        </p>
+
+        <pre><code>cfdisk --zero /dev/nvme0n1
+mkfs.vfat -F32 /dev/nvme0n1p1
+mkfs.ext4 -F -l "Vylen Linux" /dev/nvme0n1p2
+
+mount /dev/nvme0n1p2 /mnt
+mount /dev/nvme0n1p1 /mnt/boot --mkdir</code></pre>
+
+        <h2 id="rootfs">Step 2: Install the root filesystem</h2>
+
+        <p>
+            Place the Vylen root filesystem archive in the live environment,
+            then extract it into <code>/mnt</code> and enter the installed
+            system:
+        </p>
+
+        <pre><code>tar xvJpf vylen-rootfs-*.tar.xz -C /mnt
+/mnt/usr/bin/xchroot /mnt /bin/bash</code></pre>
+
+        <h2 id="base">Step 3: Configure the base system</h2>
+
+        <p>
+            Set the hardware clock, timezone, keyboard, repository metadata,
+            package database, filesystem table, locale, and initial passwords.
+        </p>
+
+        <pre><code>hwclock --hctosys --utc
+ln -snf /usr/share/zoneinfo/Region/City /etc/localtime
+loadkeys -q us
+
+sed -i -E '/\/extra[[:space:]]/s/^#//' /etc/emerald.repo
+
+emerald sync
+emerald upgrade emerald -y
+emerald sysup -y
+
+blkid /dev/nvme0n1p*
+vi /etc/fstab</code></pre>
+
+        <p>
+            Use the UUID values from <code>blkid</code> in
+            <code>/etc/fstab</code>:
+        </p>
+
+        <pre><code>UUID=&lt;efi-uuid&gt;  /boot  vfat  defaults  0 0
+UUID=&lt;root-uuid&gt; /      ext4  defaults  0 1</code></pre>
+
+        <p>
+            Replace <code>Region/City</code> with the required zoneinfo path.
+            Enable a locale, generate it, set the root password, and create the
+            first user:
+        </p>
+
+        <pre><code>sed -i 's/^#en_US\.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locales
+genlocales
+
+passwd
+useradd -m -G users,wheel,audio,video,usb -s /bin/bash user
+passwd user</code></pre>
+
+        <p>Replace <code>user</code> with the name of the account to create.</p>
+        <h2 id="boot">Step 4: Install the kernel and create the EFI entry</h2>
+
+        <p>
+            The root filesystem tools are already available from the core
+            installation. The kernel and EFI boot-entry utility are provided by
+            the extra repository, which was enabled in the previous step:
+        </p>
+
+        <pre><code>emerald install linux efibootmgr</code></pre>
+
+        <p>
+            Create the UEFI boot entry. Replace
+            <code>&lt;root-uuid&gt;</code> with the root filesystem UUID from
+            <code>blkid</code>:
+        </p>
+
+        <pre><code>efibootmgr \
+    --create \
+    --disk /dev/nvme0n1 \
+    --part 1 \
+    --label "Vylen Linux (linux)" \
+    --loader '/vmlinuz-linux' \
+    --unicode 'initrd=\\initrd-linux.img root=UUID=&lt;root-uuid&gt; rw rootfstype=ext4'</code></pre>
+
+        <h2 id="finish">Step 5: Finish installation</h2>
+        <p>Leave the installed system, unmount the target, and reboot from the new Vylen installation:</p>
+
+        <pre><code>exit
+umount /mnt -l
+reboot</code></pre>
+    </article>
+</section>

@@ -1,0 +1,360 @@
+<section class="hero compact">
+    <p class="eyebrow">MKINITRAMFS / HOOK AUTHORING</p>
+    <h1>Hooks</h1>
+
+    <p class="lead">
+        A detailed guide to writing, resolving, ordering, testing, and debugging
+        mkinitramfs hooks. Hooks are POSIX shell files sourced at build time and
+        again inside the initramfs.
+    </p>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">Hook manual</p>
+
+        <a href="#/mkinitramfs">Manuals</a>
+        <a href="#/mkinitramfs/hooks#model">Model</a>
+        <a href="#/mkinitramfs/hooks#stages">Stages</a>
+        <a href="#/mkinitramfs/hooks#helpers">Helpers</a>
+        <a href="#/mkinitramfs/hooks#standard">Standard hooks</a>
+        <a href="#/mkinitramfs/hooks#custom">Custom hook</a>
+        <a href="#/mkinitramfs/hooks#mount">Mount handler</a>
+        <a href="#/mkinitramfs/hooks#debug">Debugging</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="model">Hook model</h2>
+
+        <p>
+            A hook is a file named <code>name.hook</code>. The same file is
+            sourced during the build, where it can populate the archive, and at
+            boot, where it can define early-userspace behavior. A hook may
+            define any combination of <code>build_hook</code>,
+            <code>run_early_hook</code>, <code>run_late_hook</code>, and
+            <code>run_cleanup_hook</code>.
+        </p>
+
+        <p>
+            The build creates a hook order file. At boot,
+            <code>/init</code> reads that order, sources each hook, invokes the
+            function for the current stage, then unsets the stage functions
+            before loading the next hook. This prevents a function from leaking
+            into a later hook.
+        </p>
+
+        <h2 id="stages">Execution stages</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Stage</th>
+                    <th>Context</th>
+                    <th>Correct use</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>build_hook</code>
+                    </td>
+
+                    <td>Host build environment</td>
+                    <td>Call payload helpers only; do not assume the real root exists.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>run_early_hook</code>
+                    </td>
+
+                    <td>Initramfs, before root mount</td>
+                    <td>Discover devices, start udev, unlock LUKS, activate LVM.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>run_late_hook</code>
+                    </td>
+
+                    <td>Initramfs, after root mount</td>
+
+                    <td>
+                        Perform actions that require <code>/newroot</code>.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>run_cleanup_hook</code>
+                    </td>
+
+                    <td>Initramfs teardown</td>
+                    <td>Stop udev and remove temporary state; runs in reverse hook order.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="helpers">Build helper API</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Helper</th>
+                    <th>Purpose</th>
+                    <th>Example</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>add_binary</code>
+                    </td>
+
+                    <td>
+                        Resolve a binary from <code>PATH</code> or an explicit
+                        path and include its shared libraries.
+                    </td>
+
+                    <td>
+                        <code>add_binary cryptsetup</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>add_module</code>
+                    </td>
+
+                    <td>
+                        Resolve a kernel module for <code>${KERNEL}</code>,
+                        dependencies, and firmware.
+                    </td>
+
+                    <td>
+                        <code>add_module dm_mod</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>add_file</code>
+                    </td>
+
+                    <td>Copy a file into the image.</td>
+
+                    <td>
+                        <code>add_file etc/crypttab</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>add_dir</code>
+                    </td>
+
+                    <td>Create a directory in the image.</td>
+
+                    <td>
+                        <code>add_dir var/lib/example</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>add_symlink</code>
+                    </td>
+
+                    <td>Create a symbolic link in the image.</td>
+
+                    <td>
+                        <code>add_symlink usr/bin/example ../lib/example</code>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Use absolute source paths when referring to host files, but keep
+            destination paths relative to the initramfs root according to the
+            helper contract. Ensure every binary needed by a boot-stage command
+            is added explicitly or by a standard hook. The build sets
+            <code>PATH=/bin:/usr/bin:/sbin:/usr/sbin</code>.
+        </p>
+
+        <h2 id="standard">Standard hooks</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Hook</th>
+                    <th>Build payload</th>
+                    <th>Boot behavior</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>base</code>
+                    </td>
+
+                    <td>
+                        Creates <code>/bin</code>, <code>/dev</code>,
+                        <code>/proc</code>, <code>/sys</code>,
+                        <code>/run</code>, <code>/usr</code>, module and udev
+                        directories, standard links, shell, mount,
+                        <code>switch_root</code>, <code>modprobe</code>,
+                        <code>blkid</code>, and core utilities.
+                    </td>
+
+                    <td>No stage function; supplies the foundation.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>modules</code>
+                    </td>
+
+                    <td>
+                        Scans kernel module categories including crypto,
+                        filesystems, block, ATA, SCSI, virtio, HID, USB host,
+                        and USB storage.
+                    </td>
+
+                    <td>No stage function; supplies drivers.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>automod</code>
+                    </td>
+
+                    <td>
+                        Reads currently loaded modules under
+                        <code>/sys/module</code> and adds modules resolvable by
+                        <code>modinfo</code>.
+                    </td>
+
+                    <td>No stage function.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>udev</code>
+                    </td>
+
+                    <td>
+                        Adds udevd, udevadm, rules, <code>ata_id</code>, and
+                        <code>scsi_id</code>.
+                    </td>
+
+                    <td>
+                        Starts udevd, triggers subsystem/device add/change
+                        events, waits with <code>udevadm settle</code>, then
+                        stops and cleans udev during cleanup.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>encrypt</code>
+                    </td>
+
+                    <td>
+                        Adds cryptsetup, dmsetup, lvm, stty, expr,
+                        <code>dm_mod</code>, device-mapper rules, and libgcc.
+                    </td>
+
+                    <td>
+                        Prompts up to three times for a LUKS passphrase, opens
+                        the device as <code>vylen</code>, activates LVM volume
+                        groups, and updates the mapped device.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="custom">Writing a custom hook</h2>
+
+        <pre><code>#!/bin/sh
+
+build_hook() {
+    add_binary /usr/bin/exampled
+    add_module example_storage
+    add_file etc/example/initrd.conf
+    add_dir var/lib/example
+    add_symlink usr/bin/exampled-link ../usr/bin/exampled
+}
+
+run_early_hook() {
+    # The root filesystem is not mounted yet.
+    /usr/bin/exampled \
+        --initrd \
+        --discover
+}
+
+run_late_hook() {
+    # The root filesystem is mounted at /newroot.
+    [ -x /newroot/usr/bin/exampled ] || return 0
+    /newroot/usr/bin/exampled --initrd --late
+}
+
+run_cleanup_hook() {
+    killall exampled 2&gt;/dev/null || true
+}</code></pre>
+
+        <p>
+            Install it as <code>/etc/mkinitramfs/hooks/example.hook</code> or
+            another directory in <code>HOOKDIRS</code>, then select it by name:
+        </p>
+
+        <pre><code>mkinitramfs -A example -o /boot/initrd-example.img
+mkinitramfs -a example
+mkinitramfs -s udev -a example</code></pre>
+
+        <h2 id="mount">Custom root mounting</h2>
+
+        <p>
+            A hook may override the <code>mount_handler</code> variable with the
+            name of a function that mounts the root filesystem. This replaces
+            the default <code>mount_root</code> behavior and is the mechanism
+            used for live images and overlay filesystems.
+        </p>
+
+        <pre><code>mount_live_root() {
+    mount -t tmpfs tmpfs /newroot
+    mount -o lowerdir=/ro,upperdir=/rw,workdir=/work -t overlay overlay /newroot
+}
+
+mount_handler=mount_live_root</code></pre>
+
+        <p>
+            The handler must leave a usable root at <code>/newroot</code>. Test
+            failure paths carefully because a broken handler prevents
+            <code>switch_root</code>.
+        </p>
+
+        <h2 id="debug">Ordering and debugging</h2>
+
+        <p>
+            Order is significant. Put driver and filesystem payload hooks before
+            behavior hooks that use them. Put <code>udev</code> before a hook
+            that expects populated device nodes. Put <code>encrypt</code> before
+            a root mount that depends on its mapped device.
+        </p>
+
+        <pre><code>mkinitramfs -A automod -a udev,encrypt
+lsmkinitramfs /boot/initrd-linux.img | less
+lsmkinitramfs /boot/initrd-linux.img | grep -E 'exampled|modules|udev|cryptsetup'</code></pre>
+
+        <p>
+            Use <code>breakpoint premount y</code> or
+            <code>breakpoint postmount</code> through the init command line when
+            a boot pause is needed. Keep hooks POSIX-compliant: avoid Bash
+            arrays, process substitution, and shell-specific conditionals.
+        </p>
+    </article>
+</section>

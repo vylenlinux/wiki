@@ -1,0 +1,25 @@
+<section class="hero compact">
+    <p class="eyebrow">EMERALD / SYSTEM AUDIT</p>
+    <h1>revdep</h1>
+
+    <p class="lead">
+        Scan installed binaries and libraries for broken reverse dependencies.
+    </p>
+
+    <div class="command-line"># revdep [options]</div>
+</section>
+
+<section class="doc">
+    <h2 id="usage">Usage</h2>
+
+    <pre><code>revdep --help
+revdep
+revdep --check-file /usr/bin/example</code></pre>
+
+    <p>
+        Configure exclusions in <code>/etc/revdep.conf</code> and optional files
+        under <code>/etc/revdep.d/*.conf</code>. The scan can inspect shared
+        libraries and language modules; review exclusions carefully so a real
+        broken dependency is not hidden.
+    </p>
+</section>

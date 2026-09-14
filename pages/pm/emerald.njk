@@ -1,0 +1,232 @@
+<section class="hero compact">
+    <p class="eyebrow">02 / PACKAGE MANAGEMENT</p>
+    <h1>Emerald</h1>
+
+    <p class="lead">
+        Emerald is Vylen's ports-backed package manager. It resolves port
+        metadata from configured repositories, builds packages, tracks installed
+        files and dependencies, and exposes inspection tools for maintaining a
+        small system.
+    </p>
+
+    <div class="command-line"># emerald &lt;command&gt; [arguments] [options]</div>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">Emerald manual</p>
+
+        <a href="#/pm/">Overview</a>
+        <a href="#/pm/emerald#install">Install / remove</a>
+        <a href="#/pm/emerald#query">Query and inspect</a>
+        <a href="#/pm/emerald#repositories">Repositories</a>
+        <a href="#/pm/emerald#advanced">Aliases and masks</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="operating-model">Operating model</h2>
+
+        <p>
+            A port is a directory containing a <code>build.eme</code> recipe and
+            optional metadata. The recipe declares identity, source archives,
+            checksums, dependencies, and a POSIX <code>build()</code> function.
+            Emerald builds into a package archive, installs it through the
+            package database, and runs system triggers as needed.
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Command</th>
+                    <th>Effect</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Refresh metadata</td>
+
+                    <td>
+                        <code>emerald sync</code>
+                    </td>
+
+                    <td>Update configured ports repositories.</td>
+                </tr>
+
+                <tr>
+                    <td>Install</td>
+
+                    <td>
+                        <code>emerald install pkg</code>
+                    </td>
+
+                    <td>Build or fetch, resolve dependencies, and install.</td>
+                </tr>
+
+                <tr>
+                    <td>Upgrade one</td>
+
+                    <td>
+                        <code>emerald upgrade pkg</code>
+                    </td>
+
+                    <td>Upgrade a selected installed port.</td>
+                </tr>
+
+                <tr>
+                    <td>Upgrade system</td>
+
+                    <td>
+                        <code>emerald sysup</code>
+                    </td>
+
+                    <td>Upgrade all eligible installed ports.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="install">Install, upgrade, and remove</h2>
+
+        <pre><code>emerald install &lt;ports&gt; [pkgbuild options]
+emerald upgrade &lt;ports&gt; [pkgbuild options]
+emerald sysup [pkgbuild options]
+emerald remove &lt;ports&gt; [pkgdel options]
+emerald purge [ports]
+emerald trigger [ports]</code></pre>
+
+        <p>
+            Pass <code>-y</code> when you have reviewed the transaction and want
+            a non-interactive confirmation. <code>purge</code> removes selected
+            ports and orphaned dependencies; inspect the proposed set before
+            accepting it on a production system. <code>trigger</code> runs the
+            system-maintenance hooks used after package changes.
+        </p>
+
+        <h3>Safe update sequence</h3>
+
+        <pre><code>emerald sync
+emerald upgrade emerald -y
+emerald sysup</code></pre>
+
+        <h2 id="query">Query and inspect</h2>
+
+        <pre><code>emerald search &lt;pattern&gt;     # find available ports
+emerald list                 # list all available ports
+emerald info &lt;port&gt;          # show recipe metadata
+emerald path &lt;port&gt;          # print repository path
+emerald locate &lt;file&gt;        # locate a file in the ports tree
+emerald provide &lt;file&gt;       # find the port providing a file
+emerald installed            # list installed ports
+emerald outdated             # list upgrades
+emerald files &lt;port&gt;         # list installed files
+emerald deps &lt;port&gt;          # print dependencies
+emerald reverse-deps &lt;port&gt;  # print reverse dependencies
+emerald missing-deps         # report missing dependencies
+emerald orphan               # list orphan ports
+emerald foreign              # list ports outside repositories
+emerald integrity            # check installed files
+emerald is-installed &lt;port&gt;  # exit 0 if installed</code></pre>
+
+        <p>
+            The Exit status matters in scripts; <code>is-installed</code> is
+            designed for that purpose.
+        </p>
+
+        <h2 id="repositories">Repositories and global options</h2>
+
+        <p>
+            The default repository file is <code>/etc/emerald.repo</code>. Each
+            active line contains a local checkout, a remote URL, and optionally
+            a branch. Vylen's core repository is configured as the primary
+            source.
+        </p>
+
+        <pre><code>emerald sync
+emerald --repo-file=/etc/emerald.repo sync
+emerald --append-repo=/srv/ports/custom search my-port
+emerald --prepend-repo=/srv/ports/overlay install my-port
+emerald --override-repo=/srv/ports/test sysup</code></pre>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>Meaning</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>--append-repo=&lt;path&gt;</code>
+                    </td>
+
+                    <td>Search an extra local repository after configured repositories.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--prepend-repo=&lt;path&gt;</code>
+                    </td>
+
+                    <td>Give an overlay repository priority.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--override-repo=&lt;path&gt;</code>
+                    </td>
+
+                    <td>Replace configured repository paths.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--config-file=&lt;file&gt;</code>
+                    </td>
+
+                    <td>Use an alternate build configuration.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--alias-file=&lt;file&gt;</code>
+                    </td>
+
+                    <td>Use an alternate alias database.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--mask-file=&lt;file&gt;</code>
+                    </td>
+
+                    <td>Use an alternate mask database.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="advanced">Aliases, masks, and configuration</h2>
+
+        <pre><code>emerald alias list
+emerald alias add &lt;real&gt; &lt;alias&gt;
+emerald alias remove &lt;real&gt;
+emerald mask list
+emerald mask add &lt;port&gt; [&lt;port&gt; ...]
+emerald mask remove &lt;port&gt; [&lt;port&gt; ...]
+emerald world
+emerald world add &lt;port&gt;
+emerald world remove &lt;port&gt;</code></pre>
+
+        <p>
+            An alias maps a real dependency to an installed provider. A mask
+            excludes a port from <code>sysup</code>; use it for deliberate
+            version holds and document the reason. Emerald's main configuration
+            is <code>/etc/emerald.conf</code>, where you can set compiler flags,
+            parallelism, source/package/work directories, compression, and
+            retention flags such as <code>KEEP_DOC</code>,
+            <code>KEEP_MAN</code>, and <code>KEEP_GOING</code>.
+        </p>
+    </article>
+</section>

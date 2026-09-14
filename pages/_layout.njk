@@ -1,0 +1,44 @@
+<div class="site-shell">
+    <header class="site-header">
+        <a class="brand" href="#/" aria-label="Vylen Linux home">
+            VYLEN <span>LINUX</span>
+        </a>
+
+        <div class="header-actions">
+            <button class="menu-toggle" id="menu-toggle" type="button" aria-controls="primary-nav" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+
+                <b>Menu</b>
+            </button>
+
+            <nav class="top-nav" id="primary-nav" aria-label="Primary navigation">
+                <a href="#/install" class="{{ 'active' if route == '/install' else '' }}">Install</a>
+                <a href="#/pm/" class="{{ 'active' if route == '/pm/' or route == '/pm' else '' }}">Emerald</a>
+                <a href="#/mkinitramfs" class="{{ 'active' if route == '/mkinitramfs' else '' }}">mkinitramfs</a>
+                <a href="#/openrc" class="{{ 'active' if route == '/openrc' else '' }}">OpenRC</a>
+            </nav>
+
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch theme">
+                <span class="theme-icon" aria-hidden="true">☼</span>
+                <span class="theme-label">Light</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="page-wrap">{{ content | safe }}</main>
+
+    <footer class="site-footer">
+        <span>Vylen Linux documentation</span>
+
+        <span>
+            <a href="https://vylen.gitlab.io/" target="_blank" rel="noreferrer">Main site</a>
+            <a href="https://vylen.gitlab.io/packages" target="_blank" rel="noreferrer">Packages</a>
+        </span>
+    </footer>
+
+    <button class="back-top" id="back-top" aria-label="Back to top">
+        ↑ <span>Top</span>
+    </button>
+</div>

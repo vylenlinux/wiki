@@ -1,0 +1,218 @@
+<section class="hero compact">
+    <p class="eyebrow">MKINITRAMFS / CONFIGURATION</p>
+    <h1>mkinitramfs.conf</h1>
+
+    <p class="lead">
+        Complete reference for the shell configuration loaded by
+        <code>mkinitramfs</code>, including every documented variable, hook
+        precedence, search paths, and command-line overrides.
+    </p>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">Configuration</p>
+
+        <a href="#/mkinitramfs">Manuals</a>
+        <a href="#/mkinitramfs/config#file">File</a>
+        <a href="#/mkinitramfs/config#variables">Variables</a>
+        <a href="#/mkinitramfs/config#hooks">Hooks</a>
+        <a href="#/mkinitramfs/config#overrides">Overrides</a>
+        <a href="#/mkinitramfs/config#example">Example</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="file">Configuration file</h2>
+
+        <p>
+            The default file is <code>/etc/mkinitramfs.conf</code>. It is
+            sourced as POSIX shell at the beginning of image generation. Use
+            <code>-c &lt;file&gt;</code> to load another file. The file should
+            contain assignments only; do not put destructive commands in it.
+        </p>
+
+        <h2 id="variables">Variables</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Value format</th>
+                    <th>Meaning</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td><code>INITFSCOMP</code></td>
+
+                    <td>
+                        <code>gzip</code>, <code>xz</code>, <code>zstd</code>,
+                        <code>lz4</code>, <code>none</code>
+                    </td>
+
+                    <td>
+                        Compression used for the cpio stream. Default is
+                        <code>gzip</code>.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>HOOKS</code></td>
+                    <td>space-separated names</td>
+
+                    <td>
+                        Default hooks, in build and boot order. Each name
+                        resolves to <code>name.hook</code>.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>BINARIES</code></td>
+                    <td>space-separated commands or paths</td>
+                    <td>Extra binaries; shared-library dependencies are added automatically.</td>
+                </tr>
+
+                <tr>
+                    <td><code>MODULES</code></td>
+                    <td>space-separated module names</td>
+
+                    <td>
+                        Extra kernel modules; dependencies and firmware are
+                        resolved through <code>modinfo</code>.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><code>FILES</code></td>
+                    <td>space-separated absolute paths</td>
+                    <td>Extra files copied into the image.</td>
+                </tr>
+
+                <tr>
+                    <td><code>INITRAMFS</code></td>
+                    <td>output path</td>
+
+                    <td>
+                        Default output image path. The command-line
+                        <code>-o</code> option takes precedence.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="hooks">Hook discovery</h2>
+
+        <p>
+            Hook names are searched through <code>HOOKDIRS</code>, a
+            colon-separated search path. The installed default directory is
+            <code>/usr/share/mkinitramfs/hooks</code>. An entry
+            <code>encrypt</code> resolves to
+            <code>/usr/share/mkinitramfs/hooks/encrypt.hook</code>. An absolute
+            path may be passed through <code>-A</code> or <code>-a</code>.
+        </p>
+
+        <pre><code>HOOKS="base modules udev"
+# Example custom search path for one invocation:
+HOOKDIRS="/etc/mkinitramfs/hooks:/usr/share/mkinitramfs/hooks"</code></pre>
+
+        <h2 id="overrides">Command-line precedence</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>Effect</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td><code>-C &lt;compression&gt;</code></td>
+                    <td>Replace <code>INITFSCOMP</code> for this build.</td>
+                </tr>
+
+                <tr>
+                    <td><code>-A &lt;hooks&gt;</code></td>
+                    <td>Prepend hooks before configured hooks; highest precedence.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-s &lt;hooks&gt;</code>
+                    </td>
+
+                    <td>Remove named hooks from <code>HOOKS</code>.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-a &lt;hooks&gt;</code>
+                    </td>
+
+                    <td>Append hooks after the configured list and after skipped hooks are removed.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-m &lt;modules&gt;</code>
+                    </td>
+
+                    <td>Add comma-separated modules.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-b &lt;binaries&gt;</code>
+                    </td>
+
+                    <td>Add comma-separated binaries.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-f &lt;files&gt;</code>
+                    </td>
+
+                    <td>Add comma-separated files.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-o &lt;output&gt;</code>
+                    </td>
+
+                    <td>Replace the configured output path.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            The effective sequence is: load configuration, remove hooks selected
+            by <code>-s</code>, place <code>-A</code> hooks before the remaining
+            list, then append <code>-a</code> hooks. Hook order controls both
+            build-time and boot-time execution.
+        </p>
+
+        <h2 id="example">Complete example</h2>
+
+        <pre><code>INITFSCOMP="zstd"
+HOOKS="base modules udev encrypt"
+BINARIES="bash"
+MODULES="nvme ext4 dm_mod"
+FILES="/etc/crypttab /etc/modprobe.d/storage.conf"
+INITRAMFS="/boot/initrd-linux.img"
+
+# Build using the configured defaults:
+mkinitramfs
+
+# Or override only selected values:
+mkinitramfs -C xz -s encrypt -a automod -o /boot/initrd-safe.img</code></pre>
+
+        <p>
+            Keep the system configuration conservative. Add a hook only when the
+            initramfs genuinely needs the payload or behavior; unnecessary
+            binaries and rules increase image size and early-boot complexity.
+        </p>
+    </article>
+</section>

@@ -1,0 +1,57 @@
+<section class="hero compact">
+    <p class="eyebrow">EMERALD / PACKAGE DATABASE</p>
+    <h1>pkgadd</h1>
+
+    <p class="lead">Install a built Vylen package archive into the target root and register its files in the package database.</p>
+    <div class="command-line"># pkgadd [options] &lt;package&gt;</div>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">pkgadd</p>
+
+        <a href="#/pm/">Package manuals</a>
+        <a href="#/pm/pkgadd#usage">Usage</a>
+        <a href="#/pm/pkgadd#workflow">Workflow</a>
+        <a href="#/pm/pkgadd#safety">Safety</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="usage">Usage</h2>
+
+        <pre><code>pkgadd &lt;package-file&gt;
+pkgadd -f &lt;package-file&gt;
+pkgadd --root /mnt &lt;package-file&gt;
+pkgadd --help</code></pre>
+
+        <p>
+            The exact archive format is produced by the Vylen build toolchain.
+            Use <code>pkgadd</code> for a package that has already passed its
+            build and integrity checks. Emerald normally calls it for you during
+            <code>emerald install</code>.
+        </p>
+
+        <h2 id="workflow">Installation workflow</h2>
+
+        <ol>
+            <li>Validate that the archive is readable and matches the expected package metadata.</li>
+            <li>Resolve conflicts and required dependencies before changing the filesystem.</li>
+            <li>Extract files into the target root.</li>
+            <li>Record ownership, version, file list, and configuration backups.</li>
+            <li>Run package triggers required by the installed software.</li>
+        </ol>
+
+        <pre><code>emerald install zlib
+# equivalent low-level phase, after building:
+pkgadd /var/cache/emerald/packages/vivaldi-8.2.4133.52-1.epkg.tar.xz</code></pre>
+
+        <h2 id="safety">Safety notes</h2>
+
+        <p>
+            Do not use <code>pkgadd</code> to bypass dependency resolution on a
+            running system unless you understand every dependency and trigger
+            involved. For normal system changes prefer Emerald. Inspect the
+            archive and test in a temporary root when developing a new port.
+        </p>
+    </article>
+</section>

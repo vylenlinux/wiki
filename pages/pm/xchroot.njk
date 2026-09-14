@@ -1,0 +1,28 @@
+<section class="hero compact">
+    <p class="eyebrow">EMERALD / SYSTEM INSTALLATION</p>
+    <h1>xchroot</h1>
+
+    <p class="lead">
+        Enter a Vylen installation target with the filesystems and DNS context
+        required for package administration.
+    </p>
+
+    <div class="command-line"># xchroot &lt;chroot-dir&gt; [command]</div>
+</section>
+
+<section class="doc">
+    <h2 id="usage">Usage</h2>
+
+    <pre><code>xchroot /mnt
+xchroot /mnt portsync
+xchroot /mnt emerald sysup -y
+xchroot /mnt /bin/bash</code></pre>
+
+    <p>
+        The helper mounts <code>/dev</code>, <code>/dev/pts</code>,
+        <code>/dev/shm</code>, <code>/proc</code>, <code>/run</code>,
+        <code>/sys</code>, optional EFI variables, <code>/tmp</code>, and the
+        host resolver. It cleans those mounts on exit and preserves command
+        argument boundaries.
+    </p>
+</section>

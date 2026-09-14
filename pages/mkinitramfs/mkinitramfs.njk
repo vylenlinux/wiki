@@ -1,0 +1,188 @@
+<section class="hero compact">
+    <p class="eyebrow">MKINITRAMFS / IMAGE BUILDER</p>
+    <h1>mkinitramfs</h1>
+
+    <p class="lead">
+        Generate a compressed cpio initramfs for a kernel. The image contains
+        <code>/init</code>, hook payloads, libraries, modules, firmware, and
+        explicitly requested files.
+    </p>
+
+    <div class="command-line"># mkinitramfs [options] [output]</div>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">mkinitramfs</p>
+
+        <a href="#/mkinitramfs/">Manuals</a>
+        <a href="#/mkinitramfs/mkinitramfs#options">Options</a>
+        <a href="#/mkinitramfs/mkinitramfs#order">Hook order</a>
+        <a href="#/mkinitramfs/mkinitramfs#examples">Examples</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="options">Options</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>Argument</th>
+                    <th>Behavior</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>-k</code>
+                    </td>
+
+                    <td>release</td>
+
+                    <td>
+                        Use this kernel release instead of
+                        <code>uname -r</code>.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-o</code>
+                    </td>
+
+                    <td>file</td>
+                    <td>Write the generated image to a specific path.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-i</code>
+                    </td>
+
+                    <td>file</td>
+
+                    <td>
+                        Use a custom init script as <code>/init</code>.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-c</code>
+                    </td>
+
+                    <td>file</td>
+                    <td>Read an alternate configuration.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-C</code>
+                    </td>
+
+                    <td>gzip|xz|zstd|lz4|none</td>
+                    <td>Override image compression.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-m</code>
+                    </td>
+
+                    <td>mod1,mod2</td>
+                    <td>Add modules; dependencies and firmware are resolved.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-b</code>
+                    </td>
+
+                    <td>bin1,bin2</td>
+                    <td>Add binaries and their shared libraries.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-f</code>
+                    </td>
+
+                    <td>/absolute/path</td>
+                    <td>Add files to the image.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-A</code>
+                    </td>
+
+                    <td>hook1,hook2</td>
+                    <td>Prepend early hooks with highest precedence.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-a</code>
+                    </td>
+
+                    <td>hook1,hook2</td>
+                    <td>Append hooks after the configured list.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-s</code>
+                    </td>
+
+                    <td>hook1,hook2</td>
+                    <td>Skip named configured hooks.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-q</code>
+                    </td>
+
+                    <td>none</td>
+                    <td>Suppress informational messages and warnings.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-h</code>
+                    </td>
+
+                    <td>none</td>
+                    <td>Print usage and exit.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="order">Hook order</h2>
+
+        <p>
+            Hooks are sourced once while building and again by
+            <code>/init</code> at boot. <code>build_hook</code> populates the
+            archive. <code>run_early_hook</code> runs before root mount.
+            <code>run_late_hook</code> runs after root mount.
+            <code>run_cleanup_hook</code> runs during teardown, in reverse hook order.
+        </p>
+
+        <pre><code>mkinitramfs -s encrypt -a udev -m dm_mod -b cryptsetup -o /boot/initrd-custom.img</code></pre>
+        <h2 id="examples">Examples</h2>
+
+        <pre><code>mkinitramfs
+mkinitramfs -k "$(uname -r)" -o /boot/initrd-linux.img
+mkinitramfs -C zstd -A automod -s udev
+mkinitramfs -m ext4,ahci,nvme -b /bin/bash -f /etc/crypttab</code></pre>
+
+        <p>
+            Run as root. Confirm the output path is on the boot filesystem and
+            inspect it with
+            <a href="#/mkinitramfs/lsmkinitramfs">lsmkinitramfs</a> before
+            rebooting.
+        </p>
+    </article>
+</section>

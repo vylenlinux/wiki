@@ -1,0 +1,60 @@
+<section class="hero compact">
+    <p class="eyebrow">EMERALD / PACKAGE DATABASE</p>
+    <h1>pkgdel</h1>
+
+    <p class="lead">
+        Remove an installed package using the file ownership recorded in the
+        Vylen package database.
+    </p>
+
+    <div class="command-line"># pkgdel [options] &lt;port&gt;</div>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">pkgdel</p>
+
+        <a href="#/pm/">Package manuals</a>
+        <a href="#/pm/pkgdel#usage">Usage</a>
+        <a href="#/pm/pkgdel#workflow">Workflow</a>
+        <a href="#/pm/pkgdel#safety">Safety</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="usage">Usage</h2>
+
+        <pre><code>pkgdel &lt;options&gt; &lt;portname&gt;
+pkgdel --verbose &lt;portname&gt;
+pkgdel --root=/mnt &lt;portname&gt;
+pkgdel --help</code></pre>
+
+        <p>
+            The <code>pkgdel</code> utility removes one installed package by
+            consulting the local package database. Dependency and orphan
+            handling belong to higher-level Emerald commands and are not
+            performed by <code>pkgdel</code> itself.
+        </p>
+
+        <h2 id="workflow">Removal workflow</h2>
+
+        <p>
+            The package database is authoritative for installed files. A removal
+            operation reads that list, preserves configuration files according
+            to package metadata, removes owned files, updates the database, and
+            runs cleanup triggers.
+        </p>
+
+        <pre><code>emerald files example
+emerald reverse-deps example
+emerald remove example</code></pre>
+
+        <h2 id="safety">Safety notes</h2>
+
+        <p>
+            Never remove a package merely because its directory looks unused.
+            Check reverse dependencies first. Keep a recovery shell available
+            when removing low-level libraries, shell packages, boot components,
+            or packages needed to boot or administer the system.
+        </p>
+    </article>
+</section>

@@ -1,0 +1,453 @@
+<section class="hero compact">
+    <p class="eyebrow">EMERALD / PORT AUTHORING</p>
+    <h1>Creating ports</h1>
+
+    <p class="lead">
+        A complete guide to the port directory contract and the full
+        <code>pkgbuild</code> lifecycle: source acquisition, checksums,
+        extraction, build execution, staging, pruning, packaging, file
+        manifests, and installation.
+    </p>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">Port authoring</p>
+
+        <a href="#/pm/">Toolchain</a>
+        <a href="#/pm/ports#layout">Layout</a>
+        <a href="#/pm/ports#recipe">Recipe fields</a>
+        <a href="#/pm/ports#source">Sources</a>
+        <a href="#/pm/ports#build">Build function</a>
+        <a href="#/pm/ports#pipeline">Pipeline</a>
+        <a href="#/pm/ports#metadata">Metadata</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="layout">Port layout</h2>
+        <p>The following is the standard layout for a port directory:</p>
+
+        <pre><code>example/
+├── build.eme
+├── depends
+├── .checksums
+├── .pkgfiles
+├── files/
+├── pre-install
+├── post-install
+└── update.toml</code></pre>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>build.eme</code>
+                    </td>
+
+                    <td>Required POSIX shell recipe.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>depends</code>
+                    </td>
+
+                    <td>One build/runtime dependency per line.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>.checksums</code>
+                    </td>
+
+                    <td>Generated or reviewed source checksums.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>.pkgfiles</code>
+                    </td>
+
+                    <td>Generated package file listing.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>files/</code>
+                    </td>
+
+                    <td>Local files copied into the source workspace.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>pre-install</code>,
+                        <code>post-install</code>
+                    </td>
+
+                    <td>Package lifecycle scripts when the port needs them.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>update.toml</code>
+                    </td>
+
+                    <td>Updater metadata such as provider and package identity.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="recipe">Recipe fields</h2>
+
+        <pre><code>#!/usr/bin/env sh
+
+# shellcheck disable=SC2034
+description="Example package"
+homepage="https://example.org"
+maintainer="Vylen Linux Team &lt;you@example.org&gt;"
+
+name=example
+version=1.0.0
+release=1
+source="https://example.org/releases/${name}-${version}.tar.xz"
+
+backup="etc/example.conf"
+noextract="${name}-${version}.tar.xz"
+</code></pre>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Field</th>
+                    <th>Rules and effect</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>name</code>
+                    </td>
+
+                    <td>Required, lowercase, and identical to the port directory name.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>version</code>
+                    </td>
+
+                    <td>
+                        Required and must not contain <code>-</code>.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>release</code>
+                    </td>
+
+                    <td>Required integer from 1 to 99.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>description</code>
+                    </td>
+
+                    <td>Required non-empty package description.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>homepage</code>
+                    </td>
+
+                    <td>Upstream or project homepage.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>maintainer</code>
+                    </td>
+
+                    <td>Responsible port maintainer.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>source</code>
+                    </td>
+
+                    <td>
+                        Space-separated URLs or
+                        <code>filename::URL</code> mappings.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>backup</code>
+                    </td>
+
+                    <td>Configuration paths preserved during upgrades.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>noextract</code>
+                    </td>
+
+                    <td>Source filenames copied without archive extraction.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="source">Sources and checksums</h2>
+
+        <p>
+            <code>pkgbuild</code> downloads every URL with curl, retries
+            failures, resumes readable <code>.partial</code> files, and stores
+            completed files in <code>SOURCE_DIR</code>. A URL ending in a
+            filename uses that basename; <code>filename::URL</code> selects a
+            stable local name.
+        </p>
+
+        <pre><code>source="https://example.org/example-${version}.tar.xz
+    https://example.org/config.example"
+
+pkgbuild -g example  # generate checksums
+pkgbuild -m example  # skip verification for deliberate local work</code></pre>
+
+        <p>
+            Normal builds verify checksums. Treat <code>-m</code> as a debugging
+            escape hatch, not a release workflow.
+        </p>
+
+        <h2 id="build">The build function</h2>
+
+        <pre><code>build() {
+    # shellcheck disable=SC2164
+    cd "${name}-${version}"
+
+    ./configure \
+        --prefix=/usr \
+        --disable-static
+
+    make
+    make DESTDIR="${PKG}" install
+}</code></pre>
+
+        <p>
+            Before calling <code>build</code>, pkgbuild creates
+            <code>${SRC}</code> and <code>${PKG}</code>, copies
+            <code>files/</code> into the source workspace, prepares compiler and
+            language caches, exports toolchain parallelism, and runs an optional
+            <code>prepare()</code> function if the recipe defines one. The
+            recipe must install exclusively below <code>${PKG}</code>.
+        </p>
+
+        <h2 id="hooks">Port hooks</h2>
+
+        <p>
+            A port hook is an optional shell file in the port directory. Emerald
+            looks for a file named <code>pre-install</code>,
+            <code>post-install</code>, <code>pre-remove</code>, or
+            <code>post-remove</code>. The file is run with <code>sh</code>; it
+            does not need to be sourced by <code>build.eme</code> and should do
+            only the package-specific work that cannot be represented by the
+            package payload itself.
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>File</th>
+                    <th>When it runs</th>
+                    <th>Typical use</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>pre-install</code>
+                    </td>
+
+                    <td>Before the package is installed or upgraded.</td>
+                    <td>Record state or prepare a safe transition.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>post-install</code>
+                    </td>
+
+                    <td>After the package installation succeeds.</td>
+                    <td>Refresh generated databases or trigger dependent work.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>pre-remove</code>
+                    </td>
+
+                    <td>Before the package is removed.</td>
+                    <td>Prepare a service or data migration before removal.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>post-remove</code>
+                    </td>
+
+                    <td>After the package has been removed.</td>
+                    <td>Clean package-specific state that is no longer owned.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Emerald changes into the port directory before running a hook. The
+            hook can call normal system tools and Emerald commands, but it must
+            be safe to run as root, use POSIX <code>sh</code> syntax, and handle
+            a missing optional dependency without breaking an unrelated
+            transaction. Keep hooks short and idempotent: an upgrade may run the
+            same install hook more than once over the life of a package.
+        </p>
+
+        <pre><code>#!/bin/sh
+# example: post-install
+if emerald is-installed example-daemon; then
+    rc-service example-daemon restart 2&gt;/dev/null
+fi</code></pre>
+
+        <p>
+            Hooks are optional. Emerald skips a hook file that does not exist.
+            To run one explicitly for a port, use the hook subcommand:
+        </p>
+
+        <pre><code>emerald hook pre install example
+emerald hook post install example
+emerald hook pre remove example
+emerald hook post remove example</code></pre>
+
+        <p>
+            Do not put ordinary files into hooks. Configuration files belong in
+            <code>files/</code>, package dependencies belong in
+            <code>depends</code>, and files that must survive upgrades belong in
+            the recipe's <code>backup</code> value. A hook is for a transition
+            action, not a replacement for the package payload.
+        </p>
+
+        <h2 id="pipeline">Full pipeline</h2>
+
+        <ol>
+            <li>Load configuration and resolve custom paths and job count.</li>
+            <li>Validate writable source, package, and work directories.</li>
+
+            <li>
+                Source and validate <code>build.eme</code>.
+            </li>
+
+            <li>
+                Construct the package filename
+                <code>name-version-release.epkg.tar.compression</code>.
+            </li>
+
+            <li>
+                Handle early-exit modes: package file list, download, extract,
+                checksum generation, or clean.
+            </li>
+
+            <li>
+                Acquire a per-package lock at
+                <code>/tmp/pkgbuild.name.lock</code>.
+            </li>
+
+            <li>Fetch sources, verify checksums, unpack archives, and copy local files.</li>
+
+            <li>
+                Run optional <code>prepare()</code>, then <code>build()</code>,
+                with tracing unless quiet.
+            </li>
+
+            <li>
+                Automatically add <code>/etc/conf.d/*</code> files to backup
+                metadata when not already listed.
+            </li>
+
+            <li>
+                Lint and prune the staging tree according to strip,
+                documentation, locale, libtool, and cache policy.
+            </li>
+
+            <li>
+                Compress the staged tree, write the package archive, and
+                generate <code>.pkgfiles</code>.
+            </li>
+
+            <li>
+                Remove the workspace unless <code>--keep-work</code> was
+                requested.
+            </li>
+
+            <li>
+                Install, upgrade, or reinstall through <code>pkgadd</code> when
+                requested, then release the lock.
+            </li>
+        </ol>
+
+        <h2 id="metadata">Review checklist</h2>
+
+        <p>
+            Confirm that the name is lowercase and matches the directory,
+            version contains no hyphen, release is 1–99, description is present,
+            sources are stable, checksums are current, dependencies are
+            complete, and no file escapes <code>${PKG}</code>. Build once with
+            <code>--keep-work</code>, inspect the staged result and generated
+            file list, then test installation and removal.
+        </p>
+
+        <h2 id="advanced">Advanced build state and pruning</h2>
+
+        <p>
+            Recipes can persist tool-generated configuration between builds
+            through the cbuild helpers.
+            <code>cbuild_save source [name]</code> copies a generated
+            configuration into <code>CBUILD_DIR/name.cfg</code>;
+            <code>cbuild_restore destination [name]</code> restores it; and
+            <code>cbuild_options [name]</code> sources an optional
+            <code>CBUILD_DIR/name.opt</code> file. These helpers are useful for
+            configure-cache-like workflows, but the saved state must not make a
+            build depend on an undocumented machine.
+        </p>
+
+        <pre><code>cbuild_save config.cache example
+cbuild_restore config.cache example
+cbuild_options example</code></pre>
+
+        <p>
+            Before packaging, pkgbuild can strip binaries, compress info and
+            manual pages, remove unwanted documentation and locale data, remove
+            libtool artifacts, and preserve files listed in <code>backup</code>.
+            OpenRC configuration files under <code>${PKG}/etc/conf.d/</code> are
+            automatically added to backup metadata unless already listed.
+        </p>
+
+        <p>
+            Every active build creates <code>/tmp/pkgbuild.name.lock</code>.
+            This prevents two builds of the same package from racing over one
+            workspace or package output. Interrupt handling removes the lock and
+            performs normal workspace cleanup.
+        </p>
+    </article>
+</section>

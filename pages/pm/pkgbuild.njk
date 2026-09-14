@@ -1,0 +1,261 @@
+<section class="hero compact">
+    <p class="eyebrow">EMERALD / PACKAGE TOOLCHAIN</p>
+    <h1>pkgbuild</h1>
+
+    <p class="lead">
+        Build a package from the current port recipe. This page documents the
+        executable itself; port structure, recipe authoring, persistent build
+        state, and package policy are documented separately in
+        <a href="#/pm/ports">Creating ports</a>.
+    </p>
+
+    <div class="command-line"># pkgbuild [options] [port-directory]</div>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">pkgbuild</p>
+
+        <a href="#/pm/pkgbuild#options">Options</a>
+        <a href="#/pm/pkgbuild#early">Early modes</a>
+        <a href="#/pm/pkgbuild#pipeline">Pipeline</a>
+        <a href="#/pm/pkgbuild#outputs">Outputs</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="options">Options</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Option</th>
+                    <th>Effect</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>-q</code> / <code>--quiet</code>
+                    </td>
+
+                    <td>Show status messages and errors while suppressing traced build output.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-i</code> / <code>--install</code>
+                    </td>
+
+                    <td>Install the resulting archive.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-u</code> / <code>--upgrade</code>
+                    </td>
+
+                    <td>Pass the package to the upgrade path.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-r</code> / <code>--reinstall</code>
+                    </td>
+
+                    <td>Reinstall the resulting package.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-c</code> / <code>--ignore-conflict</code>
+                    </td>
+
+                    <td>Pass the conflict override to package installation.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-v</code> / <code>--verbose</code>
+                    </td>
+
+                    <td>Pass verbose installation behavior.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-f</code> / <code>--force-rebuild</code>
+                    </td>
+
+                    <td>Ignore a cached package and rebuild.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-m</code> / <code>--skip-checksum</code>
+                    </td>
+
+                    <td>Skip source checksum validation.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-g</code> / <code>--gen-checksum</code>
+                    </td>
+
+                    <td>Generate the checksum file and exit.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-o</code> / <code>--download</code>
+                    </td>
+
+                    <td>Download source files only.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-x</code> / <code>--extract</code>
+                    </td>
+
+                    <td>Download and extract sources only.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-p</code> / <code>--pkgfiles</code>
+                    </td>
+
+                    <td>Generate the package file list and exit.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-w</code> / <code>--keep-work</code>
+                    </td>
+
+                    <td>Keep the port work directory after completion.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-h</code> / <code>--help</code>
+                    </td>
+
+                    <td>Print the built-in help text.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>-C</code> / <code>--clean</code>
+                    </td>
+
+                    <td>
+                        Remove downloaded source files and the cached package.
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--config=&lt;file&gt;</code>
+                    </td>
+
+                    <td>Use a different Emerald configuration file.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--srcdir=&lt;path&gt;</code>
+                    </td>
+
+                    <td>Override the source cache directory.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--pkgdir=&lt;path&gt;</code>
+                    </td>
+
+                    <td>Override the package cache directory.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--workdir=&lt;path&gt;</code>
+                    </td>
+
+                    <td>Override the work directory.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--jobs=&lt;N&gt;</code>
+                    </td>
+
+                    <td>Set normalized parallel jobs for build helpers.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>--no-backup</code>
+                    </td>
+
+                    <td>Skip configuration backups during upgrade.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="early">Early-exit modes</h2>
+
+        <pre><code>pkgbuild -g example
+pkgbuild -o example
+pkgbuild -x example
+pkgbuild -p example
+pkgbuild -C example</code></pre>
+
+        <p>
+            These modes stop after checksum generation, source download,
+            extraction, manifest generation, or cleanup. They are useful for
+            inspecting a port without running its full build.
+        </p>
+
+        <h2 id="pipeline">Execution pipeline</h2>
+
+        <ol>
+            <li>Load the configuration and resolve source, package, work, and build-state directories.</li>
+            <li>Resolve the job count and export parallelism for Make, Ninja, CMake, Cargo, and Go.</li>
+            <li>Validate the port recipe and its required metadata.</li>
+            <li>Handle any early-exit option.</li>
+            <li>Create a per-package lock and fetch the declared sources.</li>
+            <li>Verify checksums, prepare the source workspace, and extract archives.</li>
+            <li>Run the optional recipe preparation step and the recipe's build function.</li>
+            <li>Assemble the staged result, apply package policy, compress it, and write its file list.</li>
+
+            <li>
+                Remove the workspace unless <code>--keep-work</code> was requested.
+            </li>
+
+            <li>
+                Install the resulting archive when <code>--install</code>,
+                <code>--upgrade</code>, or <code>--reinstall</code> was selected.
+            </li>
+        </ol>
+
+        <h2 id="outputs">Outputs and failure behavior</h2>
+
+        <p>
+            The archive name is
+            <code>name-version-release.epkg.tar.&lt;gz|bz2|xz|lz4|zstd&gt;</code>.
+            The command uses a lock to prevent two builds of the same package
+            from sharing one workspace. An interrupted build removes the lock
+            and follows the normal cleanup path.
+        </p>
+
+        <p>
+            For the recipe fields, source naming, checksums, staging rules,
+            persistent build helpers, pruning policy, and review checklist, use
+            the dedicated <a href="#/pm/ports">Creating ports</a> manual.
+        </p>
+    </article>
+</section>

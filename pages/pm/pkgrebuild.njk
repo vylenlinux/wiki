@@ -1,0 +1,25 @@
+<section class="hero compact">
+    <p class="eyebrow">EMERALD / PACKAGE TOOLCHAIN</p>
+    <h1>pkgrebuild</h1>
+
+    <p class="lead">
+        Rebuild and reinstall an already installed package, typically after a
+        library or ABI change.
+    </p>
+
+    <div class="command-line"># pkgrebuild [options] &lt;package&gt;</div>
+</section>
+
+<section class="doc">
+    <h2 id="usage">Usage</h2>
+
+    <pre><code>pkgrebuild --help
+pkgrebuild &lt;package&gt;</code></pre>
+
+    <p>
+        The utility checks that the package exists, rebuilds from its associated
+        port data, and reinstalls the result. Use it for controlled repair;
+        ordinary upgrades should go through <code>emerald upgrade</code> or
+        <code>emerald sysup</code>.
+    </p>
+</section>

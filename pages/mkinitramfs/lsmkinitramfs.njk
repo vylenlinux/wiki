@@ -1,0 +1,81 @@
+<section class="hero compact">
+    <p class="eyebrow">MKINITRAMFS / INSPECTION</p>
+    <h1>lsmkinitramfs</h1>
+
+    <p class="lead">
+        List the files stored inside a compressed initramfs image using the
+        configured compression format and <code>bsdcpio</code>.
+    </p>
+
+    <div class="command-line"># lsmkinitramfs &lt;image&gt;</div>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">lsmkinitramfs</p>
+        <a href="#/mkinitramfs/">Manuals</a>
+        <a href="#/mkinitramfs/lsmkinitramfs#usage">Usage</a>
+        <a href="#/mkinitramfs/lsmkinitramfs#checks">Checks</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="usage">Usage</h2>
+
+        <pre><code>lsmkinitramfs /boot/initrd-linux.img
+lsmkinitramfs /boot/initrd-linux.img | less
+lsmkinitramfs /boot/initrd-linux.img | grep -E '(^|/)init$|modules|udev'</code></pre>
+
+        <p>
+            The tool reads <code>INITFSCOMP</code> to choose the decompressor,
+            then passes the resulting cpio stream to <code>bsdcpio</code>. It
+            does not boot or modify the image.
+        </p>
+
+        <h2 id="checks">Useful checks</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Check</th>
+                    <th>Reason</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>^init$</code>
+                    </td>
+
+                    <td>Confirms the image has its entrypoint.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>etc/udev</code>
+                    </td>
+
+                    <td>Confirms udev payload and rules are present.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>lib/modules</code>
+                    </td>
+
+                    <td>Confirms kernel modules were included.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>cryptsetup</code>
+                    </td>
+
+                    <td>Required when using the encrypt hook.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>Exit status is non-zero if no image is provided or the archive cannot be read.</p>
+    </article>
+</section>

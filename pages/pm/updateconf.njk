@@ -1,0 +1,28 @@
+<section class="hero compact">
+    <p class="eyebrow">EMERALD / CONFIGURATION</p>
+    <h1>updateconf</h1>
+
+    <p class="lead">
+        Interactively process package configuration files ending in the configured
+        <code>epkgnew</code> suffix under <code>/etc</code>.
+    </p>
+
+    <div class="command-line"># updateconf</div>
+</section>
+
+<section class="doc">
+    <h2 id="behavior">Behavior</h2>
+
+    <p>
+        The utility compares each new configuration with its current counterpart and
+        displays a unified diff. It offers Update, Discard, Edit, and Keep both;
+        it requires root access and uses <code>EDITOR</code>, defaulting to
+        <code>vim</code>. It does not implement an automatic three-way merge.
+    </p>
+
+    <p>
+        If the current file does not exist, the new file is removed. Identical files
+        are also removed. Review diffs before accepting changes; the utility is
+        interactive and is not an unattended merge tool.
+    </p>
+</section>
