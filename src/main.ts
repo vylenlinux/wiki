@@ -16,11 +16,18 @@ import {
     bindPageInteractions
 } from "./ui.js";
 
+import {
+    type RootfsManifest,
+    loadRootfsManifest
+} from "./rootfs.js";
+
 const root: HTMLDivElement | null = document.querySelector<HTMLDivElement>("#app");
 if (!root) throw new Error("App root is missing");
 
 const appRoot: HTMLDivElement = root;
 const registry: TemplateRegistry = createTemplateRegistry();
+
+let rootfsManifest: RootfsManifest | null = null;
 
 function render(): void {
     const {
@@ -34,7 +41,8 @@ function render(): void {
         path,
 
         route: path,
-        pages: [...registry.pages.keys()]
+        pages: [...registry.pages.keys()],
+        rootfs: rootfsManifest
     });
 
     appRoot.innerHTML = renderTemplate(registry.layout, {
@@ -55,3 +63,8 @@ function render(): void {
 
 window.addEventListener("hashchange", render);
 render();
+
+void loadRootfsManifest().then((manifest: RootfsManifest | null): void => {
+    rootfsManifest = manifest;
+    render();
+});

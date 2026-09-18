@@ -12,6 +12,7 @@
     },
 
     "dependencies": {
+        "json5": "^2.2.3",
         "nunjucks": "^3.2.4"
     },
 

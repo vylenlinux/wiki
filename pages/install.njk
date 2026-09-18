@@ -50,7 +50,13 @@ mount /dev/nvme0n1p1 /mnt/boot --mkdir</code></pre>
             system:
         </p>
 
-        <pre><code>tar xvJpf vylen-rootfs-*.tar.xz -C /mnt
+        <pre><code>{% if rootfs %}curl -L -C - -O '{{ rootfs.tarball }}'
+curl -L -C - -O '{{ rootfs.b3sum }}'
+
+# Verify hash sums
+b3sum -c {{ rootfs.b3sum_filename }}
+
+{% endif %}tar xvJpf {{ rootfs.tarball_filename }} -C /mnt
 /mnt/usr/bin/xchroot /mnt /bin/bash</code></pre>
 
         <h2 id="base">Step 3: Configure the base system</h2>
