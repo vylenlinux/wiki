@@ -20,7 +20,7 @@ export function parseHash(hash: string): RouteState {
 export function pageTitle(path: string): string {
     if (path === "/") return "Vylen Linux Wiki";
 
-    const name:  string = path.split("/").filter(Boolean).pop() ?? "Wiki";
+    const name:  string = (path.split("/").filter(Boolean).pop() ?? "Wiki");
     const title: string = name.replace(/\.njk$/, "").replace(/(^|[-_])([a-z])/g, (_: string, prefix: string, letter: string): string => `${prefix}${letter.toUpperCase()}`);
 
     return `${title} · Vylen Linux`;

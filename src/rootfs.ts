@@ -22,7 +22,7 @@ export async function loadRootfsManifest(): Promise<RootfsManifest | null> {
         const response: Response = await fetch("/rootfs.json5");
 
         if (!response.ok) {
-            console.error(`Unable to load rootfs manifest: HTTP ${response.status}`);
+            console.error("Unable to load rootfs manifest: HTTP %s", response.status);
             return null;
         }
 
@@ -41,7 +41,7 @@ export async function loadRootfsManifest(): Promise<RootfsManifest | null> {
             b3sum_filename: getFilename(b3sum)
         };
     } catch (error) {
-        console.error("Unable to load rootfs manifest", error);
+        console.error("Unable to load rootfs manifest %s", error);
         return null;
     }
 }
