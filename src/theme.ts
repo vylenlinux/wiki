@@ -1,6 +1,6 @@
 export type Theme = "dark" | "light";
 
-const THEME_KEY: string = "vylen-theme";
+const THEME_KEY: string = "vylen-wiki-theme";
 
 export function getStoredTheme(): Theme {
     return ((localStorage.getItem(THEME_KEY) === "light") ? "light" : "dark");
