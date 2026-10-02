@@ -19,6 +19,7 @@
         <a href="#/pm/ports#recipe">Recipe fields</a>
         <a href="#/pm/ports#source">Sources</a>
         <a href="#/pm/ports#build">Build function</a>
+        <a href="#/pm/ports#hooks">Package hooks</a>
         <a href="#/pm/ports#pipeline">Pipeline</a>
         <a href="#/pm/ports#metadata">Metadata</a>
     </aside>
@@ -33,8 +34,7 @@
 ├── .checksums
 ├── .pkgfiles
 ├── files/
-├── pre-install
-├── post-install
+├── example.install
 └── update.toml</code></pre>
 
         <table>
@@ -88,11 +88,10 @@
 
                 <tr>
                     <td>
-                        <code>pre-install</code>,
-                        <code>post-install</code>
+                        <code>example.install</code>
                     </td>
 
-                    <td>Package lifecycle scripts when the port needs them.</td>
+                    <td>Optional unified package lifecycle hooks.</td>
                 </tr>
 
                 <tr>
@@ -255,22 +254,47 @@ pkgbuild -m example  # skip verification for deliberate local work</code></pre>
             recipe must install exclusively below <code>${PKG}</code>.
         </p>
 
-        <h2 id="hooks">Port hooks</h2>
+        <h2 id="hooks">Package hooks</h2>
 
         <p>
-            A port hook is an optional shell file in the port directory. Emerald
-            looks for a file named <code>pre-install</code>,
-            <code>post-install</code>, <code>pre-remove</code>, or
-            <code>post-remove</code>. The file is run with <code>sh</code>; it
-            does not need to be sourced by <code>build.eme</code> and should do
-            only the package-specific work that cannot be represented by the
-            package payload itself.
+            A port may contain one optional POSIX shell file named
+            <code>PORT.install</code>, where <code>PORT</code> is the port name.
+            For example, the <code>fish</code> port uses
+            <code>fish/fish.install</code>. Emerald sources this single file and
+            calls the function that matches the lifecycle stage and action.
         </p>
+
+        <pre><code>#!/bin/sh
+
+pre_install() {
+    # $1: installed version; $2: target version
+    :
+}
+
+post_install() {
+    printf 'installed %s, target %s\n' "$1" "$2"
+}
+
+pre_upgrade() {
+    :
+}
+
+post_upgrade() {
+    :
+}
+
+pre_remove() {
+    :
+}
+
+post_remove() {
+    :
+}</code></pre>
 
         <table>
             <thead>
                 <tr>
-                    <th>File</th>
+                    <th>Function</th>
                     <th>When it runs</th>
                     <th>Typical use</th>
                 </tr>
@@ -278,65 +302,137 @@ pkgbuild -m example  # skip verification for deliberate local work</code></pre>
 
             <tbody>
                 <tr>
-                    <td>
-                        <code>pre-install</code>
-                    </td>
-
-                    <td>Before the package is installed or upgraded.</td>
-                    <td>Record state or prepare a safe transition.</td>
+                    <td><code>pre_install()</code></td>
+                    <td>Before a new package is installed.</td>
+                    <td>Prepare state for the first installation.</td>
                 </tr>
 
                 <tr>
-                    <td>
-                        <code>post-install</code>
-                    </td>
-
-                    <td>After the package installation succeeds.</td>
-                    <td>Refresh generated databases or trigger dependent work.</td>
+                    <td><code>post_install()</code></td>
+                    <td>After a new package is installed successfully.</td>
+                    <td>Refresh databases or restart dependent services.</td>
                 </tr>
 
                 <tr>
-                    <td>
-                        <code>pre-remove</code>
-                    </td>
-
-                    <td>Before the package is removed.</td>
-                    <td>Prepare a service or data migration before removal.</td>
+                    <td><code>pre_upgrade()</code></td>
+                    <td>Before an installed package is upgraded.</td>
+                    <td>Save state or prepare a transition.</td>
                 </tr>
 
                 <tr>
-                    <td>
-                        <code>post-remove</code>
-                    </td>
+                    <td><code>post_upgrade()</code></td>
+                    <td>After an upgrade succeeds.</td>
+                    <td>Migrate state or refresh generated data.</td>
+                </tr>
 
-                    <td>After the package has been removed.</td>
-                    <td>Clean package-specific state that is no longer owned.</td>
+                <tr>
+                    <td><code>pre_remove()</code></td>
+                    <td>Before a package is removed.</td>
+                    <td>Stop services or prepare data cleanup.</td>
+                </tr>
+
+                <tr>
+                    <td><code>post_remove()</code></td>
+                    <td>After a package is removed successfully.</td>
+                    <td>Clean package-specific state no longer owned.</td>
                 </tr>
             </tbody>
         </table>
 
         <p>
-            Emerald changes into the port directory before running a hook. The
-            hook can call normal system tools and Emerald commands, but it must
-            be safe to run as root, use POSIX <code>sh</code> syntax, and handle
-            a missing optional dependency without breaking an unrelated
-            transaction. Keep hooks short and idempotent: an upgrade may run the
-            same install hook more than once over the life of a package.
+            Every hook receives two positional arguments. Emerald removes the
+            package release suffix before calling the function, so a package
+            recorded as <code>2.4.0-1</code> is passed as <code>2.4.0</code>.
+            <code>$1</code> is the installed version and <code>$2</code> is the
+            target version being installed. The automatic values are:
         </p>
 
-        <pre><code>#!/bin/sh
-# example: post-install
-if emerald is-installed example-daemon; then
-    rc-service example-daemon restart 2&gt;/dev/null
-fi</code></pre>
+        <table>
+            <thead>
+                <tr>
+                    <th>Hook</th>
+
+                    <th>
+                        <code>$1</code>
+                    </th>
+
+                    <th>
+                        <code>$2</code>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>pre_install()</code>
+                    </td>
+
+                    <td>empty</td>
+                    <td>new version</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>post_install()</code>
+                    </td>
+
+                    <td>installed version</td>
+                    <td>new version</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>pre_upgrade()</code>
+                    </td>
+
+                    <td>old version</td>
+                    <td>new version</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>post_upgrade()</code>
+                    </td>
+
+                    <td>old version</td>
+                    <td>new version</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>pre_remove()</code>
+                    </td>
+
+                    <td>installed version</td>
+                    <td>empty</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>post_remove()</code>
+                    </td>
+
+                    <td>installed version</td>
+                    <td>empty</td>
+                </tr>
+            </tbody>
+        </table>
 
         <p>
-            Hooks are optional. Emerald skips a hook file that does not exist.
-            To run one explicitly for a port, use the hook subcommand:
+            Emerald changes into the port directory before sourcing the install
+            file. Hooks run as part of package operations, so they must be safe
+            to run as root, use POSIX <code>sh</code> syntax, and remain short
+            and idempotent. A missing install file or missing function is
+            ignored.
         </p>
+
+        <p>To run a hook explicitly for a port, use:</p>
 
         <pre><code>emerald hook pre install example
 emerald hook post install example
+emerald hook pre upgrade example
+emerald hook post upgrade example
 emerald hook pre remove example
 emerald hook post remove example</code></pre>
 
