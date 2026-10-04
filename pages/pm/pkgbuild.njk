@@ -257,5 +257,37 @@ pkgbuild -C example</code></pre>
             persistent build helpers, pruning policy, and review checklist, use
             the dedicated <a href="#/pm/ports">Creating ports</a> manual.
         </p>
+
+        <h2 id="help">
+            <code>pkgbuild help</code>
+        </h2>
+
+        <pre><code>Usage:
+    pkgbuild &lt;options&gt; [&lt;arg&gt;]
+
+Options:
+    -q  --quiet            show only status messages and errors
+    -i, --install          install package into system
+    -u, --upgrade          upgrade package
+    -r, --reinstall        reinstall package
+    -c, --ignore-conflict  ignore conflict when installing package
+    -v, --verbose          verbose install process
+    -f, --force-rebuild    rebuild package
+    -m, --skip-checksum    skip checksum checking
+    -g, --gen-checksum     generate checksum
+    -o, --download         download only source file
+    -x, --extract          extract only source file
+    -p, --pkgfiles         generate list files in package
+    -w, --keep-work        keep working directory
+    -h, --help             show this help message
+    -C, --clean            remove downloaded sources and prebuilt packages
+
+Global options:
+    --config=&lt;config&gt;      use custom config file
+    --srcdir=&lt;path&gt;        override directory path for sources
+    --pkgdir=&lt;path&gt;        override directory path for compiled package
+    --workdir=&lt;path&gt;       override directory path for working dir
+    --jobs=&lt;N&gt;             override parallel build jobs (default: JOBS in config, or nproc)
+    --no-backup            skip backup configuration file when upgrading package</code></pre>
     </article>
 </section>

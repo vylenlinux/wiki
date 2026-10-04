@@ -53,5 +53,24 @@ pkgadd /var/cache/emerald/packages/vivaldi-8.2.4133.52-1.epkg.tar.xz</code></pre
             involved. For normal system changes prefer Emerald. Inspect the
             archive and test in a temporary root when developing a new port.
         </p>
+
+        <h2 id="help">
+            <code>pkgadd help</code>
+        </h2>
+
+        <pre><code>Usage:
+    pkgadd &lt;options&gt; [&lt;package.epkg.tar.xz&gt;]
+
+Options:
+    -u, --upgrade          upgrade package
+    -r, --reinstall        reinstall package
+    -c, --ignore-conflict  ignore conflict when installing package
+    -v, --verbose          print files installed
+    -h, --help             show this help message
+
+Global options:
+    --no-backup            skip backup when upgrading package
+    --print-db-dir         print package database path
+    --root=&lt;path&gt;          install to custom root directory</code></pre>
     </article>
 </section>

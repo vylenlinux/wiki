@@ -3,7 +3,28 @@
     <h1>pkgbase</h1>
 
     <p class="lead">Build the base package metadata and filesystem database used by the Vylen package toolchain.</p>
+
     <div class="command-line"># pkgbase [options] &lt;package&gt;</div>
+        <h2 id="help">
+            <code>pkgbase help</code>
+        </h2>
+
+        <pre><code>Usage:
+    pkgbase &lt;options&gt; [&lt;arg&gt;]
+
+Options:
+    -n, --dryrun  dry-run (show what would be removed without doing it)
+    -y, --yes     don't ask user confirmation
+    -h, --help    print this help message
+
+Description:
+    Removes all packages except base and specified packages.
+    Keeps all dependencies of base and specified packages.
+
+Examples:
+    pkgbase -n vim git    # dry-run: show what would be removed
+    pkgbase -y            # remove to base without confirmation
+    pkgbase vim git curl  # keep vim, git, curl and their dependencies</code></pre>
 </section>
 
 <section class="doc">

@@ -4,6 +4,30 @@
 
     <p class="lead">Create a new port directory and starter recipe for the Vylen ports tree.</p>
     <div class="command-line"># portcreate [options] &lt;name&gt;</div>
+
+    <h2 id="help">
+        <code>portcreate help</code>
+    </h2>
+
+    <pre><code>Usage:
+    portcreate [-b builder] &lt;portname&gt;
+
+Create a port template directory with @BUILD_SCRIPT@ file.
+
+Options:
+    -b &lt;builder&gt;  Specify build system (default: autotools)
+                  Available: autotools, meson, cmake, go, python, rust, gpep517
+
+    -h            Show this help message
+
+Examples:
+    portcreate myport            # Creates autotools template
+    portcreate -b meson myport   # Creates meson template
+    portcreate -b cmake myport   # Creates cmake template
+    portcreate -b go myport      # Creates go template
+    portcreate -b python myport  # Creates python template
+    portcreate -b rust myport    # Creates rust template
+    portcreate -b gpep517 myport # Creates gpep517 template</code></pre>
 </section>
 
 <section class="doc">

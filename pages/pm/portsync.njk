@@ -2,12 +2,27 @@
     <p class="eyebrow">EMERALD / REPOSITORIES</p>
     <h1>portsync</h1>
 
-    <p class="lead">
-        Synchronize one or more local ports repositories from their configured
-        remotes.
-    </p>
-
+    <p class="lead">Synchronize one or more local ports repositories from their configured remotes.</p>
     <div class="command-line"># portsync [options]</div>
+
+    <h2 id="help">
+        <code>portsync help</code>
+    </h2>
+
+    <pre><code>Usage:
+    portsync &lt;options&gt;
+
+Options:
+    -p, --prune	          prune local git repository
+    -r, --reset	          reset git repositories
+    -s, --source &lt;repos&gt;  sync specific repos only (space-separated)
+    -h, --help	          show this help message
+
+Examples:
+    portsync                 sync all repos
+    portsync --source main   sync only 'main'
+    portsync -s main custom  sync 'main' and 'custom'
+    portsync -r -s main      reset and sync only 'main' </code></pre>
 </section>
 
 <section class="doc">

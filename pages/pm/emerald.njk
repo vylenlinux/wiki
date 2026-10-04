@@ -86,6 +86,126 @@
             </tbody>
         </table>
 
+        <h2 id="help">
+            <code>emerald help</code>
+        </h2>
+
+        <pre><code>Usage:
+    emerald &lt;options&gt; [&lt;arg&gt;]
+
+Options:
+    search       &lt;pattern&gt;         find ports in repo
+                                   -n, --name   search in port names only
+
+    sync                   &lt;arg&gt;   update ports database (use portsync arg)
+                                   -p, --prune  prune local git repository
+                                   -r, --reset  reset git repositories
+
+    build        &lt;ports&gt;   &lt;arg&gt;   build ports (use pkgbuild arg, except '-i', '-u', '-r', '-g', &amp; '-p')
+                                   -f           force rebuild package
+                                   -k           keep going building next package on error
+                                   -m           skip checksum checking
+                                   -o           fetch sources only
+                                   -q, --quiet  show only status messages and errors
+                                   -w           keep working directory
+                                   -y           skip ask user confirmation
+                                   -C, --clean  remove downloaded sources and prebuilt packages
+                                   --log        log build process (/var/log/name-version-release-date.log)
+                                   --jobs=&lt;N&gt;   override parallel build jobs (default: JOBS in config, or nproc)
+
+    install      &lt;ports&gt;   &lt;arg&gt;   install ports (use pkgbuild arg, except '-i' &amp; '-u')
+                                   -c           ignore conflict when installing package
+                                   -f           force rebuild package
+                                   -k           keep going installing next package on error
+                                   -m           skip checksum checking
+                                   -n           skip dependencies
+                                   -o           fetch sources only
+                                   -q, --quiet  show only status messages and errors
+                                   -r           reinstall
+                                   -w           keep working directory
+                                   -y, --yes    skip ask user confirmation
+                                   --exclude=*  exclude dependencies, comma separated
+                                   --no-backup  skip backup when reinstalling package
+                                   --jobs=&lt;N&gt;   override parallel build jobs (default: JOBS in config, or nproc)
+
+    upgrade      &lt;ports&gt;   &lt;arg&gt;   upgrade ports (use pkgbuild arg, except '-i' &amp; '-r')
+                                   -c           ignore conflict when installing package
+                                   -f           force rebuild package
+                                   -k           keep going upgrading next package on error
+                                   -m           skip checksum checking
+                                   -n           skip dependencies
+                                   -o           fetch sources only
+                                   -q, --quiet  show only status messages and errors
+                                   -w           keep working directory
+                                   -y, --yes    skip ask user confirmation
+                                   --exclude=*  exclude dependencies, comma separated
+                                   --no-backup  skip backup when upgrading package
+                                   --jobs=&lt;N&gt;   override parallel build jobs (default: JOBS in config, or nproc)
+
+    sysup                  &lt;arg&gt;   full system upgrade (use pkgbuild arg, except '-i', '-r'  &amp; '-u')
+                                   -c           ignore conflict when installing package
+                                   -f           force rebuild package
+                                   -k           keep going upgrading next package on error
+                                   -m           skip checksum checking
+                                   -n           skip dependencies
+                                   -o           fetch sources only
+                                   -q, --quiet  show only status messages and errors
+                                   -w           keep working directory
+                                   -y, --yes    skip ask user confirmation
+                                   --exclude=*  exclude dependencies, comma separated
+                                   --no-backup  skip backup when upgrading package
+                                   --jobs=&lt;N&gt;   override parallel build jobs (default: JOBS in config, or nproc)
+
+    remove       &lt;ports&gt;   &lt;arg&gt;   remove installed ports (use pkgdel arg)
+                                   -y, --yes    skip ask user confirmation
+
+    deplist      &lt;ports&gt;           print all dependencies for ports
+                                   -q, --quick  skip installed ports
+                                   --exclude=*  exclude dependencies, comma separated
+
+    redeps       &lt;ports&gt;   &lt;arg&gt;   find redundant dependencies
+                                   -f, --fix    fix (remove) redundant port deps
+
+    cache                          (no args)    clean packages AND sources cache
+                                   -p, --pkg    clean packages cache only
+                                   -s, --src    clean sources cache only
+
+    cat          &lt;port&gt;            print $BUILD_SCRIPT
+    config                         print emerald config
+    dependent    &lt;port&gt;            print reverse dependencies
+    depends      &lt;port&gt;            print dependencies
+    dup                            print duplicate ports
+    files        &lt;port&gt;            print files installed
+    foreign                        print foreign ports
+    help                           print this help
+    hook  &lt;stage&gt; &lt;action&gt; &lt;port&gt;  run port hook on demand (run 'emerald hook' for help)
+    info         &lt;port&gt;            print information
+    installed                      print all installed ports
+    integrity                      check installed port integrity
+    is-installed  &lt;port&gt;           check whether port is installed (status 0=installed, 1=not installed)
+    locate       &lt;file&gt;            print location of file in ports repo
+    alias        &lt;arg&gt;             manage aliased ports (run 'emerald alias help' for usage)
+    mask         &lt;arg&gt;             manage masked ports (run 'emerald mask help' for usage)
+    missing-deps                   print missing dependencies
+    orphan                         print orphan installed ports
+    outdated                       print outdated ports
+    path         &lt;port&gt;            print path in repo
+    provide      &lt;file&gt;            print ports provided file
+    purge        [ports]           remove installed ports and its orphan dependencies
+    trigger      [ports]           run system trigger
+    world        [ports]           print/add/remove world list
+    list                           print all available ports
+    version                        print version information and exit
+
+Global options:
+    --append-repo=&lt;repo path&gt;      append custom local repo path (can use multiple times)
+    --prepend-repo=&lt;repo path&gt;     prepend custom local repo path (can use multiple times)
+    --override-repo=&lt;repo path&gt;    override repo in $REPO_FILE with custom local repo (can use multiple times)
+    --repo-file=&lt;repo file&gt;        use custom repo file (default: $REPO_FILE)
+    --config-file=&lt;config file&gt;    use custom config file (default: $CONFIG_FILE)
+    --alias-file=&lt;alias file&gt;      use custom alias file (default: $ALIAS_FILE)
+    --mask-file=&lt;mask file&gt;        use custom mask file (default: $MASK_FILE)</code></pre>
+
         <h2 id="install">Install, upgrade, and remove</h2>
 
         <pre><code>emerald install &lt;ports&gt; [pkgbuild options]

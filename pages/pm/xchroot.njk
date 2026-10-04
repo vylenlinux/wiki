@@ -8,6 +8,34 @@
     </p>
 
     <div class="command-line"># xchroot &lt;chroot-dir&gt; [command]</div>
+
+    <h2 id="help">
+        <code>xchroot help</code>
+    </h2>
+
+    <pre><code>Usage:
+    xchroot &lt;chroot-dir&gt; [command]
+
+If 'command' is unspecified, xchroot will launch /usr/bin/sh.
+
+Arguments:
+    &lt;chroot-dir&gt;  Directory to use as new root filesystem
+    [command]     Command to execute inside chroot (optional)
+
+Description:
+    This script mounts necessary filesystems and enters a chroot environment.
+    It automatically mounts: /dev, /proc, /sys, /run, /tmp, and /etc/resolv.conf
+
+Examples:
+    xchroot /mnt/mysystem
+    xchroot /mnt/mysystem portsync
+    xchroot /mnt/mysystem emerald sysup -y
+    xchroot /mnt/mysystem /usr/bin/bash
+    xchroot /mnt/mysystem /usr/bin/mksh -c portsync
+
+Notes:
+    - If you want to run a command using a specific shell, use: shell -c 'command'
+    - Arguments are passed directly to the command, preserving their structure</code></pre>
 </section>
 
 <section class="doc">
@@ -16,7 +44,7 @@
     <pre><code>xchroot /mnt
 xchroot /mnt portsync
 xchroot /mnt emerald sysup -y
-xchroot /mnt /bin/bash</code></pre>
+xchroot /mnt /usr/bin/bash</code></pre>
 
     <p>
         The helper mounts <code>/dev</code>, <code>/dev/pts</code>,

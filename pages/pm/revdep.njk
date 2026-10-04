@@ -7,6 +7,22 @@
     </p>
 
     <div class="command-line"># revdep [options]</div>
+
+    <h2 id="help">
+        <code>revdep help</code>
+    </h2>
+
+    <pre><code>Usage:
+    revdep <options> [<arg>]
+
+Options:
+    -a, --all                       print all affected files
+    -r, --rebuild                   rebuild &amp; reinstall broken package
+    -p, --package <pkg>             check for certain package
+    -f, --no-filter                 skip filter (exclude) dirs, files and libraries
+    -e, --exclude <pkg1 pkg2 pkgN>  exclude package when rebuild (use with -r/--rebuild)
+    -y, --yes                       dont ask user confirmation to rebuild package (use with -r/--rebuild)
+    -h, --help                      print this help message</code></pre>
 </section>
 
 <section class="doc">
