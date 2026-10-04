@@ -1,66 +1,90 @@
 <section class="hero compact">
     <p class="eyebrow">EMERALD / CONFIGURATION</p>
     <h1>Configuration reference</h1>
+
     <p class="lead">
         Complete documentation for every configuration template installed from
         <code>emerald/data/</code>: build settings, repositories, aliases,
         masks, and reverse-dependency exclusions.
     </p>
 </section>
+
 <section class="doc-grid">
     <aside class="toc">
         <p class="toc-title">Configuration</p>
-        <a href="#/pm/">Toolchain</a><a href="#/pm/config#files">Files</a
-        ><a href="#/pm/config#emerald-conf">emerald.conf</a
-        ><a href="#/pm/config#repo">emerald.repo</a
-        ><a href="#/pm/config#alias">emerald.alias</a
-        ><a href="#/pm/config#mask">emerald.mask</a
-        ><a href="#/pm/config#revdep">revdep.conf</a>
+
+        <a href="#/pm/config#files">Files</a>
+        <a href="#/pm/config#emerald-conf">emerald.conf</a>
+        <a href="#/pm/config#repo">emerald.repo</a>
+        <a href="#/pm/config#alias">emerald.alias</a>
+        <a href="#/pm/config#mask">emerald.mask</a>
+        <a href="#/pm/config#revdep">revdep.conf</a>
     </aside>
+
     <article class="doc">
         <h2 id="files">Installed files</h2>
+
         <table>
             <thead>
                 <tr>
                     <th>File</th>
-                    <th>Source template</th>
                     <th>Role</th>
                 </tr>
             </thead>
+
             <tbody>
                 <tr>
-                    <td><code>/etc/emerald.conf</code></td>
-                    <td><code>data/emerald.conf.in</code></td>
+                    <td>
+                        <code>/etc/emerald.conf</code>
+                    </td>
+
                     <td>Build environment and package policy.</td>
                 </tr>
+
                 <tr>
-                    <td><code>/etc/emerald.repo</code></td>
-                    <td><code>data/emerald.repo.in</code></td>
+                    <td>
+                        <code>/etc/emerald.repo</code>
+                    </td>
+
                     <td>Repository checkout and remote definitions.</td>
                 </tr>
+
                 <tr>
-                    <td><code>/etc/emerald.alias</code></td>
-                    <td><code>data/emerald.alias.in</code></td>
+                    <td>
+                        <code>/etc/emerald.alias</code>
+                    </td>
+
                     <td>Real package to alias mappings.</td>
                 </tr>
+
                 <tr>
-                    <td><code>/etc/emerald.mask</code></td>
-                    <td><code>data/emerald.mask.in</code></td>
-                    <td>Packages excluded from <code>sysup</code>.</td>
+                    <td>
+                        <code>/etc/emerald.mask</code>
+                    </td>
+
+                    <td>
+                        Packages excluded from <code>sysup</code>.
+                    </td>
                 </tr>
+
                 <tr>
-                    <td><code>/etc/revdep.conf</code></td>
-                    <td><code>data/revdep.conf.in</code></td>
+                    <td>
+                        <code>/etc/revdep.conf</code>
+                    </td>
+
                     <td>Reverse-dependency scan exclusions.</td>
                 </tr>
             </tbody>
         </table>
+
         <h2 id="emerald-conf">emerald.conf</h2>
+
         <p>
             The file is shell syntax and is sourced by <code>pkgbuild</code>.
             Values can be exported to the build environment or set as
             package-manager policy.
         </p>
+
         <pre><code>export CFLAGS="-O2 -march=x86-64 -pipe"
 export CXXFLAGS="${CFLAGS}"
 export FCFLAGS="${CFLAGS}"
@@ -85,6 +109,7 @@ export LDFLAGS="-Wl,-O1 -Wl,--as-needed -Wl,-z,pack-relative-relocs"
 # KEEP_HELP="no"
 # NOCOLOR="no"
 # THEME="vylen"</code></pre>
+
         <table>
             <thead>
                 <tr>
@@ -92,106 +117,161 @@ export LDFLAGS="-Wl,-O1 -Wl,--as-needed -Wl,-z,pack-relative-relocs"
                     <th>Meaning</th>
                 </tr>
             </thead>
+
             <tbody>
                 <tr>
                     <td>
                         <code>CFLAGS</code>, <code>CXXFLAGS</code>,
                         <code>FCFLAGS</code>, <code>FFLAGS</code>
                     </td>
+
                     <td>
                         Compiler flags inherited by recipes for C, C++, Fortran,
                         and generic Fortran-compatible builds.
                     </td>
                 </tr>
+
                 <tr>
-                    <td><code>MAKEFLAGS</code></td>
+                    <td>
+                        <code>MAKEFLAGS</code>
+                    </td>
+
                     <td>
                         Default parallel make setting.
                         <code>pkgbuild --jobs=N</code> normalizes parallelism
                         for make, Ninja, CMake, Cargo, and Go.
                     </td>
                 </tr>
+
                 <tr>
-                    <td><code>LDFLAGS</code></td>
                     <td>
-                        Linker optimization, as-needed linking, and packed
-                        relative relocations.
+                        <code>LDFLAGS</code>
                     </td>
+
+                    <td>Linker optimization, as-needed linking, and packed relative relocations.</td>
                 </tr>
+
                 <tr>
-                    <td><code>SOURCE_DIR</code></td>
+                    <td>
+                        <code>SOURCE_DIR</code>
+                    </td>
+
                     <td>Downloaded source cache.</td>
                 </tr>
+
                 <tr>
-                    <td><code>PACKAGE_DIR</code></td>
-                    <td>Completed <code>.epkg.tar.*</code> package cache.</td>
-                </tr>
-                <tr>
-                    <td><code>WORK_DIR</code></td>
-                    <td>Per-port unpack and staging workspace.</td>
-                </tr>
-                <tr>
-                    <td><code>CBUILD_DIR</code></td>
                     <td>
-                        Saved custom build options and configuration snapshots.
+                        <code>PACKAGE_DIR</code>
+                    </td>
+
+                    <td>
+                        Completed <code>.epkg.tar.*</code> package cache.
                     </td>
                 </tr>
+
                 <tr>
-                    <td><code>CURL_OPTS</code></td>
+                    <td>
+                        <code>WORK_DIR</code>
+                    </td>
+
+                    <td>Per-port unpack and staging workspace.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>CBUILD_DIR</code>
+                    </td>
+
+                    <td>Saved custom build options and configuration snapshots.</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>CURL_OPTS</code>
+                    </td>
+
                     <td>Additional curl flags for source downloads.</td>
                 </tr>
+
                 <tr>
-                    <td><code>COMPRESSION_MODE</code></td>
+                    <td>
+                        <code>COMPRESSION_MODE</code>
+                    </td>
+
                     <td>
                         Package compression: <code>gz</code>, <code>bz2</code>,
                         <code>xz</code>, <code>lz4</code>, or <code>zstd</code>.
                     </td>
                 </tr>
+
                 <tr>
-                    <td><code>NO_STRIP</code></td>
+                    <td>
+                        <code>NO_STRIP</code>
+                    </td>
+
                     <td>Controls binary stripping during package assembly.</td>
                 </tr>
+
                 <tr>
-                    <td><code>IGNORE_CHECKSUM</code></td>
+                    <td>
+                        <code>IGNORE_CHECKSUM</code>
+                    </td>
+
                     <td>
                         Skip checksum verification. Prefer
-                        <code>--skip-checksum</code> only for deliberate local
-                        debugging.
+                        <code>--skip-checksum</code> only for deliberate local debugging.
                     </td>
                 </tr>
+
                 <tr>
                     <td>
                         <code>KEEP_DOC</code>, <code>KEEP_MAN</code>,
                         <code>KEEP_INFO</code>, <code>KEEP_HELP</code>
                     </td>
-                    <td>
-                        Keep or remove documentation classes during packaging.
-                    </td>
+
+                    <td>Keep or remove documentation classes during packaging.</td>
                 </tr>
+
                 <tr>
-                    <td><code>KEEP_GOING</code></td>
+                    <td>
+                        <code>KEEP_GOING</code>
+                    </td>
+
                     <td>
                         Policy for continuing through non-fatal build operations
                         where supported by the caller.
                     </td>
                 </tr>
+
                 <tr>
-                    <td><code>KEEP_LIBTOOL</code></td>
                     <td>
-                        Keep libtool artifacts instead of removing them during
-                        package cleanup.
+                        <code>KEEP_LIBTOOL</code>
                     </td>
+
+                    <td>Keep libtool artifacts instead of removing them during package cleanup.</td>
                 </tr>
+
                 <tr>
-                    <td><code>KEEP_LOCALE</code></td>
+                    <td>
+                        <code>KEEP_LOCALE</code>
+                    </td>
+
                     <td>Keep locale data when pruning package contents.</td>
                 </tr>
+
                 <tr>
-                    <td><code>NOCOLOR</code></td>
+                    <td>
+                        <code>NOCOLOR</code>
+                    </td>
+
                     <td>Disable colored status output.</td>
                 </tr>
+
                 <tr>
-                    <td><code>THEME</code></td>
+                    <td>
+                        <code>THEME</code>
+                    </td>
+
                     <td>
                         Status theme; the source documents <code>dracula</code>,
                         <code>nord</code>, and <code>vylen</code>.
@@ -199,52 +279,67 @@ export LDFLAGS="-Wl,-O1 -Wl,--as-needed -Wl,-z,pack-relative-relocs"
                 </tr>
             </tbody>
         </table>
+
         <h2 id="repo">emerald.repo</h2>
+
         <p>
             Each active line has three fields: local checkout directory,
             repository URL, and optional branch. The default branch is
             <code>main</code>.
         </p>
+
         <pre><code>/usr/ports/core https://gitlab.com/vylen/ports/core
 #/usr/ports/extra https://gitlab.com/vylen/ports/extra
 #/usr/ports/community https://gitlab.com/vylen/ports/community</code></pre>
+
         <p>
             Uncomment optional repositories only after reviewing their trust and
             port policy. Use <code>--repo-file</code>,
             <code>--append-repo</code>, <code>--prepend-repo</code>, or
             <code>--override-repo</code> for one-off changes.
         </p>
+
         <h2 id="alias">emerald.alias</h2>
+
         <p>
             One mapping per line: the real package followed by its aliased
             package. Comments and blank lines are ignored.
         </p>
+
         <pre><code># real-package aliased-package
 openssl libressl</code></pre>
+
         <p>
             This supports dependency compatibility. Manage it through
             <code>emerald alias list|add|remove</code> rather than editing
             blindly.
         </p>
+
         <h2 id="mask">emerald.mask</h2>
+
         <p>
             One port name per line. A masked port remains installed but is
             excluded from <code>emerald sysup</code>.
         </p>
+
         <pre><code># hold this package during a planned migration
 openssl</code></pre>
+
         <p>
             Use <code>emerald mask add</code> and
             <code>emerald mask remove</code>, and document why every long-lived
             mask exists.
         </p>
+
         <h2 id="revdep">revdep.conf</h2>
+
         <p>
             The reverse-dependency scanner accepts three exclusion classes.
             Directories must be absolute and end with <code>/</code>. Files must
             be absolute paths. Libraries are names; binaries depending on an
             excluded library are ignored.
         </p>
+
         <pre><code># directories
 /usr/local/
 
@@ -253,6 +348,7 @@ openssl</code></pre>
 
 # library names
 libvendor-private.so</code></pre>
+
         <p>
             Additional files can be placed in <code>/etc/revdep.d/*.conf</code>.
             Exclude only known intentional exceptions; broad exclusions reduce
