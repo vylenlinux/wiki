@@ -121,7 +121,11 @@ a {
 .theme-toggle {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 7px;
+    width: 76px;
+    min-width: 76px;
+    height: 34px;
     padding: 8px 10px;
 }
 
@@ -561,6 +565,12 @@ a {
 @media (max-width: 500px) {
     .theme-label {
         display: none;
+    }
+
+    .theme-toggle {
+        width: 38px;
+        min-width: 38px;
+        padding: 8px 0;
     }
 
     .cards, .reference-cards {
