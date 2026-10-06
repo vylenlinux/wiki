@@ -57,7 +57,7 @@ curl -L -C - -O '{{ rootfs.b3sum }}'
 b3sum -c {{ rootfs.b3sum_filename }}
 
 {% endif %}tar xvJpf {{ rootfs.tarball_filename }} -C /mnt
-/mnt/usr/bin/xchroot /mnt /bin/bash</code></pre>
+/mnt/usr/bin/xchroot /mnt /usr/bin/bash</code></pre>
 
         <h2 id="base">Step 3: Configure the base system</h2>
 
@@ -97,7 +97,7 @@ UUID=&lt;root-uuid&gt; /      ext4  defaults  0 1</code></pre>
 genlocales
 
 passwd
-useradd -m -G users,wheel,audio,video,usb,render -s /bin/bash user
+useradd -m -G users,wheel,audio,video,usb,render -s /usr/bin/bash user
 passwd user</code></pre>
 
         <p>Replace <code>user</code> with the name of the account to create.</p>
