@@ -37,7 +37,7 @@
 
         <pre><code>cfdisk --zero /dev/nvme0n1
 mkfs.vfat -F32 /dev/nvme0n1p1
-mkfs.ext4 -F -l "Vylen Linux" /dev/nvme0n1p2
+mkfs.ext4 -F -L "Vylen Linux" /dev/nvme0n1p2
 
 mount /dev/nvme0n1p2 /mnt
 mount /dev/nvme0n1p1 /mnt/boot --mkdir</code></pre>
