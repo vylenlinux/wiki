@@ -1,0 +1,233 @@
+<section class="hero compact">
+    <p class="eyebrow">04 / SERVICE MANAGEMENT</p>
+    <h1>systemd</h1>
+
+    <p class="lead">
+        Managing services, writing unit files, and inspecting logs.
+    </p>
+</section>
+
+<section class="doc-grid">
+    <aside class="toc">
+        <p class="toc-title">systemd</p>
+        <a href="#/systemd#services">Manage services</a>
+        <a href="#/systemd#sysusers">sysusers.d</a>
+        <a href="#/systemd#tmpfiles">tmpfiles.d</a>
+        <a href="#/systemd#unit">Write a service unit</a>
+        <a href="#/systemd#template">Template units</a>
+        <a href="#/systemd#inspect-logs">Inspect logs</a>
+        <a href="#/systemd#targets">Targets</a>
+    </aside>
+
+    <article class="doc">
+        <h2 id="services">Manage services</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Command</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>systemctl status name.service</code></td>
+                    <td>Show unit status and recent journal entries.</td>
+                </tr>
+                <tr>
+                    <td><code>systemctl start name.service</code></td>
+                    <td>Start now; does not enable the service at boot.</td>
+                </tr>
+                <tr>
+                    <td><code>systemctl stop name.service</code></td>
+                    <td>Stop now.</td>
+                </tr>
+                <tr>
+                    <td><code>systemctl restart name.service</code></td>
+                    <td>Stop and start again.</td>
+                </tr>
+                <tr>
+                    <td><code>systemctl reload name.service</code></td>
+                    <td>Ask the service to reload; works only if its unit supports reload.</td>
+                </tr>
+                <tr>
+                    <td><code>systemctl enable name.service</code></td>
+                    <td>Configure the unit to be started through its install target.</td>
+                </tr>
+                <tr>
+                    <td><code>systemctl enable --now name.service</code></td>
+                    <td>Enable and start.</td>
+                </tr>
+                <tr>
+                    <td><code>systemctl disable --now name.service</code></td>
+                    <td>Disable and stop.</td>
+                </tr>
+                <tr>
+                    <td><code>systemctl list-units --type=service --all</code></td>
+                    <td>List loaded service units, including inactive ones.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            Unit names commonly end in <code>.service</code>; systemctl can
+            often infer the suffix. Enabling a unit does not guarantee it will
+            start: dependencies, conditions, or a failed unit can prevent that.
+        </p>
+
+        <h2 id="sysusers">Create a service account with sysusers.d</h2>
+
+        <p>
+            Define a system user in <code>/etc/sysusers.d/example.conf</code>.
+            The <code>u</code> record creates the user; <code>-</code> requests
+            an automatically allocated ID and leaves the optional home and
+            shell fields unset.
+        </p>
+
+        <pre><code># Type  Name     ID  GECOS                    Home  Shell
+u       example  -   "Example service account" -     -</code></pre>
+
+        <p>
+            Process the file immediately with <code>systemd-sysusers</code>.
+            The system also processes sysusers.d files during boot. The unit's
+            <code>User=example</code> and <code>Group=example</code> settings
+            require the account and group to exist.
+        </p>
+
+        <pre><code>systemd-sysusers /etc/sysusers.d/example.conf
+getent passwd example
+getent group example</code></pre>
+
+        <h2 id="tmpfiles">Create directories with tmpfiles.d</h2>
+
+        <p>
+            Use <code>/etc/tmpfiles.d/example.conf</code> to declare a
+            directory and its ownership. This example creates persistent
+            application state under <code>/var/lib</code>:
+        </p>
+
+        <pre><code># Type  Path              Mode  User     Group    Age  Argument
+d       /var/lib/example  0750  example  example  -    -</code></pre>
+
+        <p>
+            Apply the file now with <code>systemd-tmpfiles</code>. The system
+            also processes tmpfiles.d rules during boot. For a service-specific
+            runtime directory under <code>/run</code>, prefer the unit's
+            <code>RuntimeDirectory=example</code> setting; systemd manages that
+            directory for the unit.
+        </p>
+
+        <pre><code>systemd-tmpfiles --create /etc/tmpfiles.d/example.conf
+stat -c '%U:%G %a %n' /var/lib/example</code></pre>
+
+        <h2 id="unit">Write a service unit</h2>
+
+        <p>
+            Create <code>/etc/systemd/system/example.service</code> for a local
+            system unit. Replace the executable path and user with values that
+            exist on the host.
+        </p>
+
+        <pre><code>[Unit]
+Description=Example service
+
+[Service]
+Type=exec
+User=example
+Group=example
+ExecStart=/usr/bin/exampled --config /etc/example/config.toml
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+        <p>
+            <code>Type=exec</code> is supported by systemd 240 and later. On
+            older versions, use <code>Type=simple</code> when appropriate.
+            <code>WantedBy=multi-user.target</code> only defines the install
+            relationship; it does not enable the unit by itself.
+        </p>
+
+        <pre><code>systemd-analyze verify /etc/systemd/system/example.service
+systemctl daemon-reload
+systemctl start example.service
+systemctl status example.service
+systemctl enable example.service</code></pre>
+
+        <p>
+            Run <code>daemon-reload</code> after adding or changing unit files.
+            Use <code>systemctl edit example.service</code> to create an override
+            instead of editing a vendor unit under <code>/usr/lib</code> or
+            <code>/lib</code>.
+        </p>
+
+        <h2 id="template">Template units and instances</h2>
+
+        <p>
+            A template unit has an <code>@</code> before its suffix, for example
+            <code>worker@.service</code>. Starting a unit with an instance name
+            creates a distinct instance: <code>worker@alpha.service</code>.
+            In the unit file, <code>%i</code> expands to the instance name.
+        </p>
+
+        <p>
+            Save this as <code>/etc/systemd/system/worker@.service</code>:
+        </p>
+
+        <pre><code>[Unit]
+Description=Worker instance %i
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/worker --config /etc/worker/%i.conf
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+        <p>
+            Reload systemd after creating the template, then start or enable
+            named instances. Each instance needs its own configuration file.
+        </p>
+
+        <pre><code>systemctl daemon-reload
+systemctl start worker@alpha.service
+systemctl start worker@beta.service
+systemctl status worker@alpha.service
+systemctl enable --now worker@alpha.service
+systemctl list-units 'worker@*.service'</code></pre>
+
+        <p>
+            <code>systemctl enable --now worker@alpha.service</code> enables
+            only the <code>alpha</code> instance for future starts; repeat for
+            each instance that should start at boot. Use <code>%I</code> instead
+            of <code>%i</code> when the unescaped instance string is needed.
+        </p>
+
+        <h2 id="inspect-logs">Inspect logs</h2>
+
+        <pre><code>journalctl -u example.service -b
+journalctl -u example.service -f
+journalctl -u 'worker@alpha.service' -b
+journalctl -p err -b</code></pre>
+
+        <p>
+            <code>-b</code> limits entries to this boot; <code>-f</code>
+            follows new entries. Journal retention and persistence depend on
+            host configuration.
+        </p>
+
+        <h2 id="targets">Targets</h2>
+
+        <p>
+            Targets group units and express system states. They are not
+            equivalent to OpenRC runlevels, though some conventional runlevel
+            names may be compatibility aliases. Inspect target relationships
+            with:
+        </p>
+
+        <pre><code>systemctl get-default
+systemctl list-units --type=target
+systemctl list-dependencies multi-user.target</code></pre>
+    </article>
+</section>
