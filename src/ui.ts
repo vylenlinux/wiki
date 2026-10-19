@@ -4,6 +4,10 @@ import {
     toggleTheme
 } from "./theme";
 
+import {
+    parseHash
+} from "./router";
+
 export function bindPageInteractions(): void {
     const menu: HTMLButtonElement | null = document.querySelector<HTMLButtonElement>("#menu-toggle");
     const nav: HTMLElement | null = document.querySelector<HTMLElement>("#primary-nav");
@@ -22,6 +26,26 @@ export function bindPageInteractions(): void {
         link.addEventListener("click", (): void => {
             nav.classList.remove("open");
             menu?.setAttribute("aria-expanded", "false");
+        });
+    });
+
+    document.querySelectorAll<HTMLAnchorElement>(".toc a").forEach((link): void => {
+        link.addEventListener("click", (event: MouseEvent): void => {
+            const current: ReturnType<typeof parseHash> = parseHash(window.location.hash);
+            const target:  ReturnType<typeof parseHash> = parseHash(link.hash);
+
+            if (target.path !== current.path || !target.anchor) return;
+
+            const element: HTMLElement | null = document.getElementById(target.anchor);
+            if (!element) return;
+
+            event.preventDefault();
+            window.history.pushState(null, "", link.hash);
+
+            element.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
         });
     });
 
