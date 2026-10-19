@@ -2,14 +2,13 @@
     <p class="eyebrow">04 / SERVICE MANAGEMENT</p>
     <h1>systemd</h1>
 
-    <p class="lead">
-        Managing services, writing unit files, and inspecting logs.
-    </p>
+    <p class="lead">Managing services, writing unit files, and inspecting logs.</p>
 </section>
 
 <section class="doc-grid">
     <aside class="toc">
         <p class="toc-title">systemd</p>
+
         <a href="#/systemd#services">Manage services</a>
         <a href="#/systemd#sysusers">sysusers.d</a>
         <a href="#/systemd#tmpfiles">tmpfiles.d</a>
@@ -29,39 +28,48 @@
                     <th>Purpose</th>
                 </tr>
             </thead>
+
             <tbody>
                 <tr>
                     <td><code>systemctl status name.service</code></td>
                     <td>Show unit status and recent journal entries.</td>
                 </tr>
+
                 <tr>
                     <td><code>systemctl start name.service</code></td>
                     <td>Start now; does not enable the service at boot.</td>
                 </tr>
+
                 <tr>
                     <td><code>systemctl stop name.service</code></td>
                     <td>Stop now.</td>
                 </tr>
+
                 <tr>
                     <td><code>systemctl restart name.service</code></td>
                     <td>Stop and start again.</td>
                 </tr>
+
                 <tr>
                     <td><code>systemctl reload name.service</code></td>
                     <td>Ask the service to reload; works only if its unit supports reload.</td>
                 </tr>
+
                 <tr>
                     <td><code>systemctl enable name.service</code></td>
                     <td>Configure the unit to be started through its install target.</td>
                 </tr>
+
                 <tr>
                     <td><code>systemctl enable --now name.service</code></td>
                     <td>Enable and start.</td>
                 </tr>
+
                 <tr>
                     <td><code>systemctl disable --now name.service</code></td>
                     <td>Disable and stop.</td>
                 </tr>
+
                 <tr>
                     <td><code>systemctl list-units --type=service --all</code></td>
                     <td>List loaded service units, including inactive ones.</td>
