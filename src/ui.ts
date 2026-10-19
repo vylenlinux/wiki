@@ -34,7 +34,7 @@ export function bindPageInteractions(): void {
             const current: ReturnType<typeof parseHash> = parseHash(window.location.hash);
             const target:  ReturnType<typeof parseHash> = parseHash(link.hash);
 
-            if (target.path !== current.path || !target.anchor) return;
+            if ((target.path !== current.path) || !target.anchor) return;
 
             const element: HTMLElement | null = document.getElementById(target.anchor);
             if (!element) return;
