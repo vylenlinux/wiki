@@ -22,12 +22,10 @@ export function bindPageInteractions(): void {
         menu.setAttribute("aria-expanded", String(open));
     });
 
-    nav?.querySelectorAll("a").forEach((link: HTMLAnchorElement): void => {
-        link.addEventListener("click", (): void => {
-            nav.classList.remove("open");
-            menu?.setAttribute("aria-expanded", "false");
-        });
-    });
+    nav?.querySelectorAll("a").forEach((link: HTMLAnchorElement): void => link.addEventListener("click", (): void => {
+        nav.classList.remove("open");
+        menu?.setAttribute("aria-expanded", "false");
+    }));
 
     document.querySelectorAll<HTMLAnchorElement>(".toc a").forEach((link): void => {
         link.addEventListener("click", (event: MouseEvent): void => {
@@ -49,12 +47,10 @@ export function bindPageInteractions(): void {
         });
     });
 
-    top?.addEventListener("click", (): void => {
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth"
-        });
-    });
+    top?.addEventListener("click", (): void => window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    }));
 
     const updateTop: () => void = (): void => {
         top?.classList.toggle("visible", window.scrollY > 480);
