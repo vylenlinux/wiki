@@ -104,7 +104,6 @@ Options:
 
     build        &lt;ports&gt;   &lt;arg&gt;   build ports (use pkgbuild arg, except '-i', '-u', '-r', '-g', &amp; '-p')
                                    -f           force rebuild package
-                                   -k           keep going building next package on error
                                    -m           skip checksum checking
                                    -o           fetch sources only
                                    -q, --quiet  show only status messages and errors
@@ -117,7 +116,6 @@ Options:
     install      &lt;ports&gt;   &lt;arg&gt;   install ports (use pkgbuild arg, except '-i' &amp; '-u')
                                    -c           ignore conflict when installing package
                                    -f           force rebuild package
-                                   -k           keep going installing next package on error
                                    -m           skip checksum checking
                                    -n           skip dependencies
                                    -o           fetch sources only
@@ -132,7 +130,6 @@ Options:
     upgrade      &lt;ports&gt;   &lt;arg&gt;   upgrade ports (use pkgbuild arg, except '-i' &amp; '-r')
                                    -c           ignore conflict when installing package
                                    -f           force rebuild package
-                                   -k           keep going upgrading next package on error
                                    -m           skip checksum checking
                                    -n           skip dependencies
                                    -o           fetch sources only
@@ -146,7 +143,6 @@ Options:
     sysup                  &lt;arg&gt;   full system upgrade (use pkgbuild arg, except '-i', '-r'  &amp; '-u')
                                    -c           ignore conflict when installing package
                                    -f           force rebuild package
-                                   -k           keep going upgrading next package on error
                                    -m           skip checksum checking
                                    -n           skip dependencies
                                    -o           fetch sources only
@@ -348,8 +344,7 @@ emerald world remove &lt;port&gt;</code></pre>
             version holds and document the reason. Emerald's main configuration
             is <code>/etc/emerald.conf</code>, where you can set compiler flags,
             parallelism, source/package/work directories, compression, and
-            retention flags such as <code>KEEP_DOC</code>,
-            <code>KEEP_MAN</code>, and <code>KEEP_GOING</code>.
+            retention flags such as <code>KEEP_DOC</code> and <code>KEEP_MAN</code>.
         </p>
     </article>
 </section>
