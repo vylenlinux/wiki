@@ -1,3 +1,7 @@
+import {
+    format
+} from "node:util";
+
 import nunjucks from "nunjucks";
 
 export type TemplateMap = Map<string, string>;
@@ -18,9 +22,9 @@ export function routeFromFile(file: string): string {
     const relative: string = file.split("/pages/").pop()!.replace(/\.njk$/, "");
 
     if (relative === "index") return "/";
-    if (relative.endsWith("/index")) return `/${relative.slice(0, -6)}`;
+    if (relative.endsWith("/index")) return format("/%s", relative.slice(0, -6));
 
-    return `/${relative}`;
+    return format("/%s", relative);
 }
 
 export function createTemplateRegistry(): TemplateRegistry {
