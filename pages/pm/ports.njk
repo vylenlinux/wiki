@@ -19,6 +19,7 @@
         <a href="#/pm/ports#source">Sources</a>
         <a href="#/pm/ports#build">Build function</a>
         <a href="#/pm/ports#hooks">Package hooks</a>
+        <a href="#/pm/ports#helpers">Helper functions</a>
         <a href="#/pm/ports#pipeline">Pipeline</a>
         <a href="#/pm/ports#metadata">Metadata</a>
         <a href="#/pm/ports#advanced">Advanced build state</a>
@@ -34,8 +35,7 @@
 ├── .checksums
 ├── .pkgfiles
 ├── files/
-├── example.install
-└── update.toml</code></pre>
+└── example.install</code></pre>
 
         <table>
             <thead>
@@ -92,14 +92,6 @@
                     </td>
 
                     <td>Optional unified package lifecycle hooks.</td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <code>update.toml</code>
-                    </td>
-
-                    <td>Updater metadata such as provider and package identity.</td>
                 </tr>
             </tbody>
         </table>
@@ -223,8 +215,8 @@ noextract="${name}-${version}.tar.xz"
         <pre><code>source="https://example.org/example-${version}.tar.xz
     https://example.org/config.example"
 
-pkgbuild -g example  # generate checksums
-pkgbuild -m example  # skip verification for deliberate local work</code></pre>
+pkgbuild -g  # generate checksums
+pkgbuild -m  # skip verification for deliberate local work</code></pre>
 
         <p>
             Normal builds verify checksums. Treat <code>-m</code> as a debugging
@@ -301,37 +293,55 @@ post_remove() {
 
             <tbody>
                 <tr>
-                    <td><code>pre_install()</code></td>
+                    <td>
+                        <code>pre_install()</code>
+                    </td>
+
                     <td>Before a new package is installed.</td>
                     <td>Prepare state for the first installation.</td>
                 </tr>
 
                 <tr>
-                    <td><code>post_install()</code></td>
+                    <td>
+                        <code>post_install()</code>
+                    </td>
+
                     <td>After a new package is installed successfully.</td>
                     <td>Refresh databases or restart dependent services.</td>
                 </tr>
 
                 <tr>
-                    <td><code>pre_upgrade()</code></td>
+                    <td>
+                        <code>pre_upgrade()</code>
+                    </td>
+
                     <td>Before an installed package is upgraded.</td>
                     <td>Save state or prepare a transition.</td>
                 </tr>
 
                 <tr>
-                    <td><code>post_upgrade()</code></td>
+                    <td>
+                        <code>post_upgrade()</code>
+                    </td>
+
                     <td>After an upgrade succeeds.</td>
                     <td>Migrate state or refresh generated data.</td>
                 </tr>
 
                 <tr>
-                    <td><code>pre_remove()</code></td>
+                    <td>
+                        <code>pre_remove()</code>
+                    </td>
+
                     <td>Before a package is removed.</td>
                     <td>Stop services or prepare data cleanup.</td>
                 </tr>
 
                 <tr>
-                    <td><code>post_remove()</code></td>
+                    <td>
+                        <code>post_remove()</code>
+                    </td>
+
                     <td>After a package is removed successfully.</td>
                     <td>Clean package-specific state no longer owned.</td>
                 </tr>
@@ -376,7 +386,7 @@ post_remove() {
                         <code>post_install()</code>
                     </td>
 
-                    <td>installed version</td>
+                    <td>new version</td>
                     <td>new version</td>
                 </tr>
 
@@ -443,6 +453,172 @@ emerald hook post remove example</code></pre>
             action, not a replacement for the package payload.
         </p>
 
+        <h2 id="helpers">Helper functions</h2>
+
+        <p>
+            <code>pkgbuild</code> provides helper functions that a recipe can call
+            from <code>build()</code> or <code>prepare()</code>. Each one copies files
+            from the port's <code>files/</code> directory into the package staging
+            directory and reports what it installed. A missing source file stops the
+            build with an error.
+        </p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Helper</th>
+
+                    <th>
+                        Reads from <code>files/</code>
+                    </th>
+
+                    <th>Installs to</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>
+                        <code>do_service [system|user] name...</code>
+                    </td>
+
+                    <td>
+                        <code>services/&lt;name&gt;/</code>: <code>.service</code>, <code>@.service</code>,
+                        <code>.socket</code>, <code>.path</code>, <code>.timer</code>, <code>@.timer</code>
+                    </td>
+
+                    <td>
+                        <code>/usr/lib/systemd/system</code> or <code>/usr/lib/systemd/user</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>do_sysusers name...</code>
+                    </td>
+
+                    <td>
+                        <code>sysusers/&lt;name&gt;.conf</code>
+                    </td>
+
+                    <td>
+                        <code>/usr/lib/sysusers.d/</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>do_tmpfiles name...</code>
+                    </td>
+
+                    <td>
+                        <code>tmpfiles/&lt;name&gt;.conf</code>
+                    </td>
+
+                    <td>
+                        <code>/usr/lib/tmpfiles.d/</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>do_udev_rules name...</code>
+                    </td>
+
+                    <td>
+                        <code>udev/&lt;name&gt;.rules</code>
+                    </td>
+
+                    <td>
+                        <code>/usr/lib/udev/rules.d/</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>do_systemd_scripts name...</code>
+                    </td>
+
+                    <td>
+                        <code>systemd/scripts/&lt;name&gt;</code>
+                    </td>
+
+                    <td>
+                        <code>/usr/lib/systemd/scripts/</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>do_systemd_system_eg name...</code>
+                    </td>
+
+                    <td>
+                        <code>systemd/system-eg/&lt;name&gt;</code>
+                    </td>
+
+                    <td>
+                        <code>/usr/lib/systemd/system-environment-generators/</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>do_systemd_system_preset name...</code>
+                    </td>
+
+                    <td>
+                        <code>systemd/system-preset/&lt;name&gt;.preset</code>
+                    </td>
+
+                    <td>
+                        <code>/usr/lib/systemd/system-preset/</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>do_pam name...</code>
+                    </td>
+
+                    <td>
+                        <code>pam.d/&lt;name&gt;</code>
+                    </td>
+
+                    <td>
+                        <code>/usr/lib/pam.d/</code>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <code>do_revdep</code>
+                    </td>
+
+                    <td>
+                        <code>&lt;port&gt;.revdep</code>, expanded with environment variables
+                    </td>
+
+                    <td>
+                        <code>/usr/lib/revdep.d/&lt;port&gt;.conf</code>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <pre><code>build() {
+    do_service sshd
+    do_sysusers sshd
+    do_tmpfiles sshd
+    do_pam sshd
+}</code></pre>
+
+        <p>
+            <code>do_service</code> installs the unit files only. Enable a service
+            through a preset file, which <code>do_systemd_system_preset</code> can
+            install.
+        </p>
+
         <h2 id="pipeline">Full pipeline</h2>
 
         <ol>
@@ -455,7 +631,7 @@ emerald hook post remove example</code></pre>
 
             <li>
                 Construct the package filename
-                <code>name-version-release.epkg.tar.compression</code>.
+                <code>&lt;name&gt;-&lt;version&gt;-&lt;release&gt;.epkg.tar.&lt;compression&gt;</code>.
             </li>
 
             <li>
@@ -465,7 +641,7 @@ emerald hook post remove example</code></pre>
 
             <li>
                 Acquire a per-package lock at
-                <code>/tmp/pkgbuild.name.lock</code>.
+                <code>/tmp/pkgbuild.&lt;name&gt;.lock</code>.
             </li>
 
             <li>Fetch sources, verify checksums, unpack archives, and copy local files.</li>
@@ -473,11 +649,6 @@ emerald hook post remove example</code></pre>
             <li>
                 Run optional <code>prepare()</code>, then <code>build()</code>,
                 with tracing unless quiet.
-            </li>
-
-            <li>
-                Automatically add <code>/etc/conf.d/*</code> files to backup
-                metadata when not already listed.
             </li>
 
             <li>
@@ -512,34 +683,16 @@ emerald hook post remove example</code></pre>
             file list, then test installation and removal.
         </p>
 
-        <h2 id="advanced">Advanced build state and pruning</h2>
-
-        <p>
-            Recipes can persist tool-generated configuration between builds
-            through the cbuild helpers.
-            <code>cbuild_save source [name]</code> copies a generated
-            configuration into <code>CBUILD_DIR/name.cfg</code>;
-            <code>cbuild_restore destination [name]</code> restores it; and
-            <code>cbuild_options [name]</code> sources an optional
-            <code>CBUILD_DIR/name.opt</code> file. These helpers are useful for
-            configure-cache-like workflows, but the saved state must not make a
-            build depend on an undocumented machine.
-        </p>
-
-        <pre><code>cbuild_save config.cache example
-cbuild_restore config.cache example
-cbuild_options example</code></pre>
+        <h2 id="advanced">Pruning and backups</h2>
 
         <p>
             Before packaging, pkgbuild can strip binaries, compress info and
             manual pages, remove unwanted documentation and locale data, remove
             libtool artifacts, and preserve files listed in <code>backup</code>.
-            OpenRC configuration files under <code>${PKG}/etc/conf.d/</code> are
-            automatically added to backup metadata unless already listed.
         </p>
 
         <p>
-            Every active build creates <code>/tmp/pkgbuild.name.lock</code>.
+            Every active build creates <code>/tmp/pkgbuild.&lt;name&gt;.lock</code>.
             This prevents two builds of the same package from racing over one
             workspace or package output. Interrupt handling removes the lock and
             performs normal workspace cleanup.

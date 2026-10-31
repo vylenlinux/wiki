@@ -14,15 +14,69 @@
     <h2 id="behavior">Behavior</h2>
 
     <p>
-        The utility compares each new configuration with its current counterpart and
-        displays a unified diff. It offers Update, Discard, Edit, and Keep both;
-        it requires root access and uses <code>EDITOR</code>, defaulting to
-        <code>vim</code>. It does not implement an automatic three-way merge.
+        The utility finds every pending new configuration file (one ending in the
+        <code>epkgnew</code> suffix) under <code>/etc</code>, <code>/boot</code>,
+        <code>/opt</code>, <code>/usr</code>, and <code>/var</code>. For each one it
+        shows the differences against the installed file and asks you to choose:
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Key</th>
+                <th>Action</th>
+                <th>Effect</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>
+                    <code>U</code>
+                </td>
+
+                <td>Update</td>
+                <td>Replace the current file with the new version. Local changes are lost.</td>
+            </tr>
+
+            <tr>
+                <td>
+                    <code>D</code>
+                </td>
+
+                <td>Discard</td>
+                <td>Delete the new file and keep the current one.</td>
+            </tr>
+
+            <tr>
+                <td>
+                    <code>E</code>
+                </td>
+
+                <td>Edit</td>
+                <td>Open the current file in your editor to merge by hand, then show the diff again.</td>
+            </tr>
+
+            <tr>
+                <td>
+                    <code>K</code>
+                </td>
+
+                <td>Keep</td>
+                <td>Leave both files; the item appears again next run.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <p>
+        A new file identical to the current one, or one whose current file does
+        not exist, is removed without asking. The utility requires root access,
+        uses <code>EDITOR</code> (default <code>vim</code>), and does not perform
+        an automatic three-way merge.
     </p>
 
     <p>
-        If the current file does not exist, the new file is removed. Identical files
-        are also removed. Review diffs before accepting changes; the utility is
-        interactive and is not an unattended merge tool.
+        Set <code>SEARCH_DIRS</code> to limit the search, for example
+        <code>SEARCH_DIRS=/etc updateconf</code>.
     </p>
 </section>

@@ -9,7 +9,7 @@
         <a href="#/pm/ports">Creating ports</a>.
     </p>
 
-    <div class="command-line"># pkgbuild [options] [port-directory]</div>
+    <div class="command-line"># pkgbuild [options]</div>
 </section>
 
 <section class="doc-grid">
@@ -209,11 +209,11 @@
 
         <h2 id="early">Early-exit modes</h2>
 
-        <pre><code>pkgbuild -g example
-pkgbuild -o example
-pkgbuild -x example
-pkgbuild -p example
-pkgbuild -C example</code></pre>
+        <pre><code>pkgbuild -g
+pkgbuild -o
+pkgbuild -x
+pkgbuild -p
+pkgbuild -C</code></pre>
 
         <p>
             These modes stop after checksum generation, source download,
@@ -224,7 +224,7 @@ pkgbuild -C example</code></pre>
         <h2 id="pipeline">Execution pipeline</h2>
 
         <ol>
-            <li>Load the configuration and resolve source, package, work, and build-state directories.</li>
+            <li>Load the configuration and resolve source, package, and work directories.</li>
             <li>Resolve the job count and export parallelism for Make, Ninja, CMake, Cargo, and Go.</li>
             <li>Validate the port recipe and its required metadata.</li>
             <li>Handle any early-exit option.</li>
@@ -255,7 +255,7 @@ pkgbuild -C example</code></pre>
 
         <p>
             For the recipe fields, source naming, checksums, staging rules,
-            persistent build helpers, pruning policy, and review checklist, use
+            pruning policy, and review checklist, use
             the dedicated <a href="#/pm/ports">Creating ports</a> manual.
         </p>
 

@@ -20,8 +20,7 @@
         <h2 id="usage">Usage</h2>
 
         <pre><code>pkgadd &lt;package-file&gt;
-pkgadd -f &lt;package-file&gt;
-pkgadd --root /mnt &lt;package-file&gt;
+pkgadd --root=/mnt &lt;package-file&gt;
 pkgadd --help</code></pre>
 
         <p>
@@ -34,11 +33,11 @@ pkgadd --help</code></pre>
         <h2 id="workflow">Installation workflow</h2>
 
         <ol>
-            <li>Validate that the archive is readable and matches the expected package metadata.</li>
-            <li>Resolve conflicts and required dependencies before changing the filesystem.</li>
+            <li>Check that the archive is readable and not corrupted.</li>
+            <li>Check for file conflicts with files owned by other installed packages.</li>
             <li>Extract files into the target root.</li>
             <li>Record ownership, version, file list, and configuration backups.</li>
-            <li>Run package triggers required by the installed software.</li>
+            <li>Refresh the shared library cache.</li>
         </ol>
 
         <pre><code>emerald install vivaldi

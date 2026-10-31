@@ -2,8 +2,8 @@
     <p class="eyebrow">EMERALD / PACKAGE TOOLCHAIN</p>
     <h1>pkgbase</h1>
 
-    <p class="lead">Build the base package metadata and filesystem database used by the Vylen package toolchain.</p>
-    <div class="command-line"># pkgbase [options] &lt;package&gt;</div>
+    <p class="lead">Remove every installed package except the base system and the packages you name, together with their dependencies.</p>
+    <div class="command-line"># pkgbase [options] [packages to keep]</div>
 
     <h2 id="help">
         <code>pkgbase help</code>
@@ -31,9 +31,9 @@ Examples:
     <h2 id="role">Role</h2>
 
     <p>
-        <code>pkgbase</code> is a low-level package database utility used by the
-        build and installation tools. It is not a replacement for Emerald
-        transactions. Use it when inspecting or repairing package metadata in a
-        controlled environment.
+        <code>pkgbase</code> is a destructive cleanup tool for slimming a
+        system down to <code>base</code>. It does not replace Emerald
+        transactions. Run it with <code>-n</code> first to review the list of
+        packages that would be removed.
     </p>
 </section>

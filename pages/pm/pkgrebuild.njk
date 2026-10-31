@@ -7,8 +7,10 @@
         library or ABI change.
     </p>
 
-    <div class="command-line"># pkgrebuild [options] &lt;package&gt;</div>
+    <div class="command-line"># pkgrebuild [options]</div>
+</section>
 
+<section class="doc">
     <h2 id="help">
         <code>pkgrebuild help</code>
     </h2>
@@ -27,12 +29,14 @@ Options:
     <h2 id="usage">Usage</h2>
 
     <pre><code>pkgrebuild --help
-pkgrebuild &lt;package&gt;</code></pre>
+pkgrebuild --toolchain
+pkgrebuild --base</code></pre>
 
     <p>
-        The utility checks that the package exists, rebuilds from its associated
-        port data, and reinstalls the result. Use it for controlled repair;
-        ordinary upgrades should go through <code>emerald upgrade</code> or
+        The utility rebuilds the system toolchain packages in dependency order,
+        then the base system packages, and reinstalls each result. Use it for
+        controlled repair after a toolchain or ABI change; ordinary upgrades
+        should go through <code>emerald upgrade</code> or
         <code>emerald sysup</code>.
     </p>
 </section>

@@ -8,34 +8,6 @@
     </p>
 
     <div class="command-line"># xchroot &lt;chroot-dir&gt; [command]</div>
-
-    <h2 id="help">
-        <code>xchroot help</code>
-    </h2>
-
-    <pre><code>Usage:
-    xchroot &lt;chroot-dir&gt; [command]
-
-If 'command' is unspecified, xchroot will launch /usr/bin/sh.
-
-Arguments:
-    &lt;chroot-dir&gt;  Directory to use as new root filesystem
-    [command]     Command to execute inside chroot (optional)
-
-Description:
-    This script mounts necessary filesystems and enters a chroot environment.
-    It automatically mounts: /dev, /proc, /sys, /run, /tmp, and /etc/resolv.conf
-
-Examples:
-    xchroot /mnt/mysystem
-    xchroot /mnt/mysystem portsync
-    xchroot /mnt/mysystem emerald sysup -y
-    xchroot /mnt/mysystem /usr/bin/bash
-    xchroot /mnt/mysystem /usr/bin/mksh -c portsync
-
-Notes:
-    - If you want to run a command using a specific shell, use: shell -c 'command'
-    - Arguments are passed directly to the command, preserving their structure</code></pre>
 </section>
 
 <section class="doc">
@@ -47,10 +19,25 @@ xchroot /mnt emerald sysup -y
 xchroot /mnt /usr/bin/bash</code></pre>
 
     <p>
+        Without a command, xchroot starts <code>/usr/bin/sh</code> inside the
+        target. Arguments after the directory are passed to the command unchanged.
+    </p>
+
+    <h2 id="mounts">Mounts</h2>
+
+    <p>
         The helper mounts <code>/dev</code>, <code>/dev/pts</code>,
         <code>/dev/shm</code>, <code>/proc</code>, <code>/run</code>,
         <code>/sys</code>, optional EFI variables, <code>/tmp</code>, and the
-        host resolver. It cleans those mounts on exit and preserves command
-        argument boundaries.
+        host <code>/etc/resolv.conf</code>. Mounts that are already present are
+        left alone.
+    </p>
+
+    <h2 id="sessions">Sessions</h2>
+
+    <p>
+        Several xchroot sessions can share the same target. Only the last session
+        to exit unmounts the filesystems. The target can't be the host root
+        <code>/</code>, and the command must be run as root.
     </p>
 </section>
