@@ -259,26 +259,38 @@ pkgbuild -m  # skip verification for deliberate local work</code></pre>
         <pre><code>#!/bin/sh
 
 pre_install() {
+    # $1 - Empty (package is not installed).
+    # $2 - Version being installed.
     :
 }
 
 post_install() {
+    # $1 - Previously installed version (if any).
+    # $2 - Installed version.
     :
 }
 
 pre_upgrade() {
+    # $1 - Currently installed version.
+    # $2 - Version being installed.
     :
 }
 
 post_upgrade() {
+    # $1 - Previously installed version.
+    # $2 - Newly installed version.
     :
 }
 
 pre_remove() {
+    # $1 - Version being removed.
+    # $2 - Empty (package is being removed).
     :
 }
 
 post_remove() {
+    # $1 - Removed version.
+    # $2 - Empty (package has been removed).
     :
 }</code></pre>
 
