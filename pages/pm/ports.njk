@@ -241,9 +241,8 @@ pkgbuild -m  # skip verification for deliberate local work</code></pre>
             Before calling <code>build</code>, pkgbuild creates
             <code>${SRC}</code> and <code>${PKG}</code>, copies
             <code>files/</code> into the source workspace, prepares compiler and
-            language caches, exports toolchain parallelism, and runs an optional
-            <code>prepare()</code> function if the recipe defines one. The
-            recipe must install exclusively below <code>${PKG}</code>.
+            language caches, exports toolchain parallelism.
+            The recipe must install exclusively below <code>${PKG}</code>.
         </p>
 
         <h2 id="hooks">Package hooks</h2>
@@ -469,7 +468,7 @@ emerald hook post remove example</code></pre>
 
         <p>
             <code>pkgbuild</code> provides helper functions that a recipe can call
-            from <code>build()</code> or <code>prepare()</code>. Each one copies files
+            from <code>build()</code>. Each one copies files
             from the port's <code>files/</code> directory into the package staging
             directory and reports what it installed. A missing source file stops the
             build with an error.
@@ -673,8 +672,7 @@ emerald hook post remove example</code></pre>
             <li>Fetch sources, verify checksums, unpack archives, and copy local files.</li>
 
             <li>
-                Run optional <code>prepare()</code>, then <code>build()</code>,
-                with tracing unless quiet.
+                Run <code>build()</code>, with tracing unless quiet.
             </li>
 
             <li>
