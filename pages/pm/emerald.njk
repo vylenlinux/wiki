@@ -110,7 +110,6 @@ Options:
                                    -y           skip ask user confirmation
                                    -C, --clean  remove downloaded sources and prebuilt packages
                                    --log        log build process (/var/log/name-version-release-date.log)
-                                   --jobs=&lt;N&gt;   override parallel build jobs (default: JOBS in config, or nproc)
 
     install      &lt;ports&gt;   &lt;arg&gt;   install ports (use pkgbuild arg, except '-i' &amp; '-u')
                                    -c           ignore conflict when installing package
@@ -123,7 +122,6 @@ Options:
                                    -y, --yes    skip ask user confirmation
                                    --exclude=*  exclude dependencies, comma separated
                                    --no-backup  skip backup when reinstalling package
-                                   --jobs=&lt;N&gt;   override parallel build jobs (default: JOBS in config, or nproc)
 
     upgrade      &lt;ports&gt;   &lt;arg&gt;   upgrade ports (use pkgbuild arg, except '-i' &amp; '-r')
                                    -c           ignore conflict when installing package
@@ -135,7 +133,6 @@ Options:
                                    -y, --yes    skip ask user confirmation
                                    --exclude=*  exclude dependencies, comma separated
                                    --no-backup  skip backup when upgrading package
-                                   --jobs=&lt;N&gt;   override parallel build jobs (default: JOBS in config, or nproc)
 
     sysup                  &lt;arg&gt;   full system upgrade (use pkgbuild arg, except '-i', '-r'  &amp; '-u')
                                    -c           ignore conflict when installing package
@@ -147,7 +144,6 @@ Options:
                                    -y, --yes    skip ask user confirmation
                                    --exclude=*  exclude dependencies, comma separated
                                    --no-backup  skip backup when upgrading package
-                                   --jobs=&lt;N&gt;   override parallel build jobs (default: JOBS in config, or nproc)
 
     remove       &lt;ports&gt;   &lt;arg&gt;   remove installed ports (use pkgdel arg)
                                    -y, --yes    skip ask user confirmation
